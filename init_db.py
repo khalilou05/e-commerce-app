@@ -1,12 +1,12 @@
-from psycopg_pool import AsyncConnectionPool
+import psycopg
 
 from utils.pswdhash import hash_passwd
 
-cnx = AsyncConnectionPool("dbname=djamel user=postgres password=khalil")
+cnx = psycopg.connect("dbname=djamel user=postgres password=khalil")
 
 
 def init_db():
-    with cnx.connection() as cur:
+    with cnx as cur:
         cur.execute(
             """--sql
 
