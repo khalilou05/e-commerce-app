@@ -68,7 +68,7 @@ async def db_get_order_by_id(cnx: AsyncConnectionPool, order_id: int):
 
 async def db_set_order_delivred(cnx: AsyncConnectionPool, order_id: int):
     async with cnx.connection() as cnx:
-        async with cnx.cursor(row_factory=dict_row) as cur:
+        async with cnx.cursor() as cur:
             query = await cur.execute(
                 """--sql
                 UPDATE order
@@ -78,6 +78,24 @@ async def db_set_order_delivred(cnx: AsyncConnectionPool, order_id: int):
                 """,
                 (order_id,),
             )
-            data = await query.fetchone()
+            row = await query.rowcount
+            if row == 1:
+                return True
+            return False
 
-            return data
+
+async def db_remove_order(cnx: AsyncConnectionPool, order_id: int):
+    async with cnx.connection() as cnx:
+        async with cnx.cursor() as cur:
+            query = await cur.execute(
+                """--sql
+                DELETE FROM order
+                WHERE id=%s
+                ;
+                """,
+                (order_id,),
+            )
+            row = await query.rowcount
+            if row == 1:
+                return True
+            return False

@@ -31,11 +31,11 @@ async def db_create_article(cnx: AsyncConnectionPool, article: Article_schema):
             query = await cur.execute(
                 """--sql
                 INSERT INTO article 
-                (title,description,price,prev_price) 
+                (title,description,price) 
                 VALUES (%s,%s) 
                 RETURNING id;
                 """,
-                (article.title, article.description, article.price, article.prev_price),
+                (article.title, article.description, article.price),
             )
             q = await query.fetchone()
             article_id = q[0]
@@ -68,10 +68,10 @@ async def db_get_article_by_id(cnx: AsyncConnectionPool, article_id: int):
         async with cnx.cursor(row_factory=dict_row) as cur:
             query1 = await cur.execute(
                 """--sql
-                SELECT article.id,title,brand,model,tissu,description,img_url
-                FROM article 
-                JOIN img_url ON article_id=article.id
-                WHERE article.id=%s;
+                SELECT A.id,A.title,A.price,A.description,I.img_url
+                FROM article A
+                JOIN img_url I ON I.article_id=A.id
+                WHERE A.id=%s;
                                  
                  """,
                 (article_id,),
@@ -80,45 +80,22 @@ async def db_get_article_by_id(cnx: AsyncConnectionPool, article_id: int):
 
             if cur.rowcount == 0:
                 return False
-            query2 = await cur.execute(
-                """
-                --sql
-                SELECT size,size_qty,size_price,color 
-                FROM article_stock 
-                WHERE article_stock.article_id=%s;
-                """,
-                (article_id,),
-            )
-            stock = await query2.fetchall()
 
             article_data = {}
             img_list = []
-            stock_list = []
             for item in data:
                 img_list.append(item["img_url"])
 
-            for item in stock:
-                stock_list.append(
-                    {
-                        "size": item["size"],
-                        "size_qty": item["size_qty"],
-                        "size_price": item["size_price"],
-                        "color": item["color"],
-                    }
-                )
             art = data[0]
             article_data.update(
                 {
                     "id": art["id"],
                     "title": art["title"],
-                    "brand": art["brand"],
-                    "model": art["model"],
-                    "tissu": art["tissu"],
+                    "price": art["price"],
                     "description": art["description"],
                 }
             )
             article_data["img_url"] = img_list
-            article_data["stock"] = stock_list
             return article_data
 
 
@@ -133,6 +110,7 @@ async def db_delete_article_by_id(cnx: AsyncConnectionPool, article_id: int):
             )
 
 
+# function to get img url from db to disk delete
 async def db_get_art_img_url(cnx: AsyncConnectionPool, article_id: int):
     async with cnx.connection() as cnx:
         async with cnx.cursor() as cur:

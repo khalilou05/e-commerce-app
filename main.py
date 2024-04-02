@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from psycopg_pool import AsyncConnectionPool
 
 from midleware.auth_midlware import Authmid
-from routes import admin, article
+from routes import admin, article, auth
 
 
 @asynccontextmanager
@@ -20,6 +20,7 @@ async def db_connect(app: FastAPI):
 app = FastAPI(
     openapi_url=None, default_response_class=ORJSONResponse, lifespan=db_connect
 )
+app.include_router(auth.route)
 app.include_router(article.route)
 app.include_router(admin.route)
 app.add_middleware(Authmid)

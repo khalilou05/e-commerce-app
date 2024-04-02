@@ -1,30 +1,26 @@
 import datetime
+
 from fastapi import APIRouter, HTTPException, Request, Response
 
-from DB.db_auth import db_get_login_info
-from DB.db_orders import db_get_all_order, db_get_order_by_id
+from DB.db_auth import db_change_admin_passwd, db_get_login_info
+from DB.db_blacklist import db_blacklist_add, db_blacklist_check, db_blacklist_remove
+from DB.db_orders import (
+    db_get_all_order,
+    db_get_order_by_id,
+    db_remove_order,
+    db_set_order_delivred,
+)
+from schema.shcema import login_data
 from utils.jwtoken import make_token
-from utils.pswdhash import verify_passwd
-from utils.pswdhash import hash_passwd
-from DB.db_blacklist import db_blacklist_add, db_blacklist_remove, db_blacklist_check
-from DB.db_auth import db_change_admin_passwd
+from utils.pswdhash import hash_passwd, verify_passwd
 
 route = APIRouter()
 
 
-# ! -------- LOG IN AND GENERATE TOKEN -----------
-@route.post("/admin")
-async def admin_login(data, req: Request):
-    id, _, passwd = await db_get_login_info(req.app.pool, data.email)
-    pascheck = await verify_passwd(passwd, data.password)
-    if not pascheck:
-        return HTTPException(status_code=401, detail="Invalid email or password")
-    token = await make_token(id, 1)
-
-    return {"token": token}
-
-
 # ! -------- COSTUMER ORDER ROUTES  ----------------
+
+
+#  --------- GET ALL ORDER -----------
 @route.get("/order")
 async def get_all_order(
     req: Request,
@@ -38,11 +34,31 @@ async def get_all_order(
     return all_order
 
 
+#  --------- GET ORDER BY ID -----------
 @route.get("/order/{id}")
 async def add_order(req: Request, id: int):
     try:
         single_order = await db_get_order_by_id(req.app.pool, id)
         return single_order
+    except:
+        return HTTPException(status_code=404)
+
+
+#  --------- SET ORDER DELEVIRED -----------
+@route.post("/order/{id}")
+async def set_ordr_delivred(req: Request, id: int):
+    try:
+        set_delivred = await db_set_order_delivred(req.app.pool, id)
+        return set_delivred
+    except:
+        return HTTPException(status_code=404)
+
+
+#  --------- DELETE ORDER  -----------
+@route.post("/order/{id}")
+async def delete_order(req: Request, id: int):
+    try:
+        delted = await db_remove_order(req.app.pool, id)
     except:
         return HTTPException(status_code=404)
 

@@ -5,7 +5,6 @@ class Article_schema(BaseModel):
     title: str
     description: str | None = None
     price: int
-    prev_price: int | None = None
 
 
 class Order(BaseModel):
@@ -16,3 +15,8 @@ class Order(BaseModel):
     wilaya: str
     quantity: int
     home_dilevery: bool = False
+
+
+class login_data(BaseModel):
+    username: str
+    password: str
