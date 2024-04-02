@@ -8,15 +8,15 @@ cnx = psycopg.connect("dbname=djamel user=postgres password=khalil")
 def init_db():
     with cnx as cur:
         cur.execute(
-            """--sql
+            """
 
-            CREATE TABLE "user" (
+            CREATE TABLE "user"(
 
                 id SERIAL PRIMARY KEY,
                 user_name VARCHAR(100) UNIQUE NOT NULL,
                 password bytea NOT NULL
                 
-            )
+            );
 
 
             CREATE TABLE article(
@@ -27,7 +27,7 @@ def init_db():
                 price INT NOT NULL,
                 published timestamp DEFAULT CURRENT_TIMESTAMP
 
-            )
+            );
 
             CREATE TABLE img_url(
 
@@ -36,7 +36,7 @@ def init_db():
                 img_url VARCHAR(200) NOT NULL,
                 img_number int NOT NULL
 
-            )
+            );
 
             CREATE TABLE black_list(
 
@@ -45,7 +45,7 @@ def init_db():
                 banned_date timestamp DEFAULT CURRENT_TIMESTAMP
 
 
-            )
+            );
 
 
             CREATE TABLE visitor(
@@ -54,10 +54,10 @@ def init_db():
                 ip_address varchar(100) NOT NULL,
                 visit_date timestamp DEFAULT CURRENT_TIMESTAMP
 
-            )
+            );
 
 
-            CREATE TABLE order(
+            CREATE TABLE costumer_order(
             
                 id SERIAL PRIMARY KEY,
                 first_name VARCHAR(100) NOT NULL,
@@ -71,22 +71,20 @@ def init_db():
                 order_proceded boolean DEFAULT false
 
             );
+
             """
         )
 
+        hashed_psswd = hash_passwd("admin")
 
-def create_superuser():
-    hashed_psswd = hash_passwd("admin")
-    with cnx.connection() as con, con.cursor() as cur:
         cur.execute(
             """--sql
                     
-                   INSERT INTO "user" (user_name,password) VALUES (%s,%s)  ; 
-              """,
+                INSERT INTO "user" (user_name,password) VALUES (%s,%s)  ; 
+            """,
             ("admin", hashed_psswd),
         )
 
 
 if __name__ == "__main__":
     init_db()
-    create_superuser()
