@@ -13,7 +13,7 @@ from DB.db_article import (
     db_get_article_by_id,
     db_update_article_by_id,
 )
-from DB.db_visitor import db_add_visitor_ip, db_check_visitor_ip
+from DB.db_visitor import db_add_article_visitor, db_add_visitor_ip, db_check_visitor_ip
 from schema.shcema import Article_schema
 from utils.img_upload import article_img_upload
 
@@ -25,9 +25,9 @@ route = APIRouter()
 async def all_article(
     req: Request, offset: int | None = None, limit: int | None = None
 ):
-    ip_exict = await db_check_visitor_ip(req.app.pool, req.client.host)
-    if not ip_exict:
-        add_ip_toDB = await db_add_visitor_ip(req.app.pool, req.client.host)
+    visited = await db_check_visitor_ip(req.app.pool, req.client.host)
+    if not visited:
+        await db_add_visitor_ip(req.app.pool, req.client.host)
     data = await db_get_all_article(req.app.pool, offset, limit)
     return data
 
@@ -35,6 +35,10 @@ async def all_article(
 #! ------ GET ARTICLE BY ID -----------
 @route.get("/article/{id}")
 async def get_article_by_id(id: int, req: Request):
+    # todo add the visitor ip to db
+    visited = await db_check_visitor_ip(req.app.pool, req.client.host)
+    if not visited:
+        await db_add_article_visitor(req.client.host, id)
     data = await db_get_article_by_id(req.app.pool, id)
     if not data:
         raise HTTPException(status_code=404)

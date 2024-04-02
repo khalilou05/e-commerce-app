@@ -52,6 +52,7 @@ def init_db():
 
                 id SERIAL PRIMARY KEY,
                 ip_address varchar(100) NOT NULL,
+                article_viewed int REFERENCES article(id) NOT NULL,
                 visit_date timestamp DEFAULT CURRENT_TIMESTAMP
 
             );

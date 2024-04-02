@@ -3,7 +3,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from utils.jwtoken import isAuthanticated
 
-banned_reqest = ["POST", "DLETE", "PATCH", "PUT"]
+banned_reqest = ["DLETE", "PATCH", "PUT"]
 
 
 class Authmid(BaseHTTPMiddleware):

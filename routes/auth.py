@@ -14,7 +14,7 @@ route = APIRouter()
 @route.post("/admin")
 async def admin_login(login_data: login_data, req: Request):
     id, _, passwd = await db_get_login_info(req.app.pool, login_data.username)
-    pascheck = await verify_passwd(passwd, login_data.password)
+    pascheck = verify_passwd(passwd, login_data.password)
     if not pascheck:
         return HTTPException(status_code=401, detail="Invalid email or password")
     token = await make_token(id, 1)
