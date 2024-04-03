@@ -88,7 +88,7 @@ async def reset_passwd(raw_password, req: Request):
 
 
 # ! -------- test  ----------------
-@route.get("/test")
+@route.post("/test")
 async def get_all_order(
     req: Request,
     offset: int | None = None,
@@ -97,4 +97,4 @@ async def get_all_order(
 ):
     da = datetime.date.today()
 
-    return [da]
+    return req.base_url.path
