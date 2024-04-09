@@ -19,6 +19,15 @@ async def db_add_article_visitor(
 ):
     async with cnx.connection() as cnx:
         async with cnx.cursor() as cur:
+            art_exist = await cur.execute(
+                """--sql
+                SELECT * FROM article WHERE id=%s
+                ;
+                """,
+                (article_viewed,),
+            )
+            if art_exist.rowcount == 0:
+                return False
             query = await cur.execute(
                 """--sql
                 INSERT INTO visitor (ip_address, article_viewed)
@@ -53,7 +62,7 @@ async def db_check_visitor_ip(cnx: AsyncConnectionPool, ip_addr: str):
                 """,
                 (ip_addr,),
             )
-            data = await query.rowcount
+            data = query.rowcount
             if data == 1:
                 return True
             return False

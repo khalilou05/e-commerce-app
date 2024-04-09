@@ -38,7 +38,9 @@ async def get_article_by_id(id: int, req: Request):
     # todo add the visitor ip to db
     visited = await db_check_visitor_ip(req.app.pool, req.client.host)
     if not visited:
-        await db_add_article_visitor(req.client.host, id)
+        added = await db_add_article_visitor(req.app.pool, req.client.host, id)
+        if not added:
+            raise HTTPException(status_code=400)
     data = await db_get_article_by_id(req.app.pool, id)
     if not data:
         raise HTTPException(status_code=404)

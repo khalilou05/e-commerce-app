@@ -13,7 +13,10 @@ route = APIRouter()
 
 @route.post("/admin")
 async def admin_login(login_data: login_data, req: Request):
-    id, _, passwd = await db_get_login_info(req.app.pool, login_data.username)
+    exist, data = await db_get_login_info(req.app.pool, login_data.username)
+    if not exist:
+        raise HTTPException(status_code=400)
+    id, username, passwd = data
     pascheck = verify_passwd(passwd, login_data.password)
     if not pascheck:
         return HTTPException(status_code=401, detail="Invalid email or password")

@@ -25,6 +25,7 @@ def init_db():
                 title VARCHAR(100) NOT NULL,
                 description text ,
                 price INT NOT NULL,
+                quantity INT NOT NULL,
                 published timestamp DEFAULT CURRENT_TIMESTAMP
 
             );

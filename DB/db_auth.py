@@ -10,8 +10,11 @@ async def db_get_login_info(cnx: AsyncConnectionPool, username: str):
             """,
             (username,),
         )
-
-        return await cur.fetchone()
+        exist = True
+        data = await cur.fetchone()
+        if data is None:
+            exist = False
+        return (exist, data)
 
 
 async def db_change_admin_passwd(cnx: AsyncConnectionPool, password: str | bytes):
