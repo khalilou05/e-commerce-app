@@ -16,11 +16,11 @@ async def admin_login(login_data: login_data, req: Request):
     exist, data = await db_get_login_info(req.app.pool, login_data.username)
     if not exist:
         raise HTTPException(status_code=400)
-    id, username, passwd = data
+    id, _, passwd = data
     pascheck = verify_passwd(passwd, login_data.password)
     if not pascheck:
         return HTTPException(status_code=401, detail="Invalid email or password")
-    token = await make_token(id, 1)
+    token = await make_token(id)
 
     return {"token": token}
 

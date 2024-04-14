@@ -2,13 +2,12 @@ import datetime
 
 from jose import jwt
 
-from settings import jwt_secret_key
+from settings import jwt_exp_date_token, jwt_secret_key
 
 
-async def make_token(id: int, expdate: int):
-    day = datetime.datetime.today() + datetime.timedelta(days=expdate)
+async def make_token(id: int):
+    day = datetime.datetime.today() + datetime.timedelta(days=jwt_exp_date_token)
     exp = int(datetime.datetime.timestamp(day))
-    # todo                       replace env here  ↓
     token = jwt.encode({"id": id, "exp": exp}, jwt_secret_key)
 
     return token
