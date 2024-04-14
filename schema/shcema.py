@@ -11,7 +11,7 @@ class Article_schema(BaseModel):
 class Order(BaseModel):
     first_name: str
     last_name: str
-    phone_numer: int
+    phone_numer: str
     wilaya: str
     quantity: int
     home_dilevery: bool = False

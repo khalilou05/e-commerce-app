@@ -27,6 +27,7 @@ async def admin_login(login_data: login_data, req: Request):
 
 # ! -------- RESET ADMIN PASSWORD -------------------
 @route.post("/resetpswd")
+# todo check here boy
 async def reset_passwd(raw_password, req: Request):
     hashed_password = hash_passwd(raw_password)
     pswd_changed = await db_change_admin_passwd(req.app.pool, hashed_password)

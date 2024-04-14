@@ -23,15 +23,14 @@ async def get_all_order(
     date: str | None = None,
     dilivred: bool | None = None,
 ):
-    if not req.auth:
-        return HTTPException(status_code=401)
+
     all_order = await db_get_all_order(req.app.pool, offset, limit, date, dilivred)
     return all_order
 
 
 # GET ORDER BY ID
 @route.get("/order/{id}")
-async def add_order(req: Request, id: int):
+async def get_order_byId(req: Request, id: int):
     try:
         single_order = await db_get_order_by_id(req.app.pool, id)
         return single_order

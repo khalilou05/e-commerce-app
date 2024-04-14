@@ -33,7 +33,6 @@ async def all_article(
 #! ------ GET ARTICLE BY ID -----------
 @route.get("/article/{id}")
 async def get_article_by_id(id: int, req: Request):
-    # todo add the visitor ip to db
     visited = await db_check_visitor_ip(req.app.pool, req.client.host)
     if not visited:
         added = await db_add_article_visitor(req.app.pool, req.client.host, id)
@@ -47,8 +46,11 @@ async def get_article_by_id(id: int, req: Request):
 
 #! ------ ORDER ARTICLE -----------
 @route.post("/article/{article_id}")
+# todo check to blacklist befor proceding an order
 async def order_article(req: Request, order_info: Order, article_id):
     order_created = await db_create_order(req.app.pool, order_info, article_id)
+    print(order_created)
+    return order_created
 
 
 #! ------ DELETE ARTICLE BY ID -----------

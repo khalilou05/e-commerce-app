@@ -66,7 +66,7 @@ def init_db():
                 last_name VARCHAR(100) NOT NULL,
                 wilaya VARCHAR(100) NOT NULL,
                 phone_number VARCHAR(50),
-                article_ordered int REFERENCES article(id) NOT NULL,
+                article_id int REFERENCES article(id) NOT NULL,
                 quantity int NOT NULL,
                 home_dilevery boolean,
                 purchase_date timestamp DEFAULT CURRENT_TIMESTAMP,

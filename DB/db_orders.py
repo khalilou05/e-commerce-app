@@ -12,10 +12,10 @@ async def db_create_order(
         async with cnx.cursor() as cur:
             await cur.execute(
                 """--sql
-                    INSERT INTO order 
+                    INSERT INTO costumer_order 
                     (article_id,
                     first_name,last_name,
-                    phone_numer,
+                    phone_number,
                     wilaya,
                     quantity,
                     home_dilevery)
@@ -45,8 +45,10 @@ async def db_get_all_order(
             if date == None and dilvred == None:
                 # get all orders standar filternig
                 sql = """--sql 
-                SELECT id,first_name,last_name,phone_number,wilaya,article_ordered,quantity,home_dilevery,art.id,atr.price 
-                FROM order 
+                SELECT o.id,o.first_name,o.last_name,o.phone_number,
+                o.wilaya,o.article_ordered,o.quantity,
+                o.home_dilevery,art.id,art.price 
+                FROM costumer_order o
                 JOIN article art
                 ON article_ordered=art.id
                 OFFSET %s 

@@ -23,6 +23,6 @@ async def check_token(token: str | bytes) -> bool | dict:
 
 async def isAuthanticated(token: str | bytes):
     isauth = await check_token(token)
-    if type(isauth) == dict:
+    if isinstance(isauth, dict):
         return True
     return False
