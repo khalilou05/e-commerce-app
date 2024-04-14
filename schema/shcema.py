@@ -5,10 +5,10 @@ class Article_schema(BaseModel):
     title: str
     description: str | None = None
     price: int
+    quantity: int
 
 
 class Order(BaseModel):
-    article_id: int
     first_name: str
     last_name: str
     phone_numer: int

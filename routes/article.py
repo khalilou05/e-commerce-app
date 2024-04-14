@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, Form, HTTPException, Request, Response, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, Request, Response, UploadFile
 
 from DB.db_article import (
     db_create_article,
@@ -13,8 +13,9 @@ from DB.db_article import (
     db_get_article_by_id,
     db_update_article_by_id,
 )
+from DB.db_orders import db_create_order
 from DB.db_visitor import db_add_article_visitor, db_add_visitor_ip, db_check_visitor_ip
-from schema.shcema import Article_schema
+from schema.shcema import Article_schema, Order
 from utils.img_upload import article_img_upload
 
 route = APIRouter()
@@ -45,6 +46,12 @@ async def get_article_by_id(id: int, req: Request):
     if not data:
         raise HTTPException(status_code=404)
     return data
+
+
+#! ------ ORDER ARTICLE -----------
+@route.post("/article/{article_id}")
+async def order_article(req: Request, order_info: Order, article_id):
+    order_created = await db_create_order(req.app.pool, order_info, article_id)
 
 
 #! ------ DELETE ARTICLE BY ID -----------
@@ -87,10 +94,11 @@ async def create_article(req: Request, article: Article_schema):
 
 
 #! ------ UPLAOD ARTICLE IMAGES -----------
-@route.post("/article/img")
-async def upload_article_img(
-    req: Request, article_id: Annotated[int, Form()], images: list[UploadFile]
+@route.post("/upload")
+async def test(
+    images: list[UploadFile], req: Request, article_id: Annotated[int, Form()]
 ):
+
     try:
         create_db_url = await db_create_img_url(req.app.pool, article_id, images)
         upload_img = await article_img_upload(article_id, images)

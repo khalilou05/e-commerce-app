@@ -31,11 +31,11 @@ async def db_create_article(cnx: AsyncConnectionPool, article: Article_schema):
             query = await cur.execute(
                 """--sql
                 INSERT INTO article 
-                (title,description,price) 
-                VALUES (%s,%s) 
+                (title,description,price,quantity) 
+                VALUES (%s,%s,%s,%s) 
                 RETURNING id;
                 """,
-                (article.title, article.description, article.price),
+                (article.title, article.description, article.price, article.quantity),
             )
             q = await query.fetchone()
             article_id = q[0]

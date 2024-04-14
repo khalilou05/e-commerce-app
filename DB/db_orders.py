@@ -4,7 +4,9 @@ from psycopg_pool import AsyncConnectionPool
 from schema.shcema import Order
 
 
-async def db_create_order(cnx: AsyncConnectionPool, costumer_order: Order):
+async def db_create_order(
+    cnx: AsyncConnectionPool, costumer_order: Order, article_id: int
+):
 
     async with cnx.connection() as cnx:
         async with cnx.cursor() as cur:
@@ -20,7 +22,7 @@ async def db_create_order(cnx: AsyncConnectionPool, costumer_order: Order):
                     VALUES (%s,%s,%s,%s,%s,%s,%s);
                  """,
                 (
-                    costumer_order.article_id,
+                    article_id,
                     costumer_order.first_name,
                     costumer_order.last_name,
                     costumer_order.phone_numer,
@@ -32,23 +34,61 @@ async def db_create_order(cnx: AsyncConnectionPool, costumer_order: Order):
 
 
 async def db_get_all_order(
-    cnx: AsyncConnectionPool, offset: int = 0, limit: int = 50, date: str | None = None
+    cnx: AsyncConnectionPool,
+    offset: int = 0,
+    limit: int = 50,
+    date: str | None = None,
+    dilvred: bool | None = None,
 ):
     async with cnx.connection() as cnx:
         async with cnx.cursor(row_factory=dict_row) as cur:
-            if date == None:
-                sql = """--sql SELECT id,first_name,last_name,phone_number,wilaya,quantity,home_dilevery FROM order OFFSET %s LIMIT %s;"""
+            if date == None and dilvred == None:
+                # get all orders standar filternig
+                sql = """--sql 
+                SELECT id,first_name,last_name,phone_number,wilaya,article_ordered,quantity,home_dilevery,art.id,atr.price 
+                FROM order 
+                JOIN article art
+                ON article_ordered=art.id
+                OFFSET %s 
+                LIMIT %s;"""
                 data = (offset, limit)
                 q1 = await cur.execute(sql, data)
                 date_filter = await q1.fetchall()
                 return date_filter
-            sql = """--sql SELECT id,first_name,last_name,phone_number,wilaya,quantity,home_dilevery FROM order WHERE purchase_date=%s OFFSET %s LIMIT %s;"""
+            # get orders filtering -> delivred + date
+            if date and dilvred:
+                sql = """--sql 
+                SELECT id,first_name,last_name,phone_number,wilaya,article_ordered,quantity,home_dilevery,art.id,atr.price
+                FROM order 
+                JOIN article art
+                ON article_ordered=art.id
+                WHERE purchase_date=%s 
+                and order_proceded=%s
+                OFFSET %s 
+                LIMIT %s;
+                """
+                data = (date, dilvred, offset, limit)
+                q1 = await cur.execute(sql, data)
+                date_filter = await q1.fetchall()
+                return date_filter
+
+            # get all orders with date filtering
+            sql = """--sql 
+            SELECT id,first_name,last_name,phone_number,wilaya,article_ordered,quantity,home_dilevery,art.id,atr.price
+            FROM order 
+            JOIN article art
+            ON article_ordered=art.id
+            WHERE purchase_date=%s 
+            OFFSET %s 
+            LIMIT %s;"""
+
             data = (date, offset, limit)
             q1 = await cur.execute(sql, data)
             resp = await q1.fetchall()
         return resp
 
 
+# note to think about it
 async def db_get_order_by_id(cnx: AsyncConnectionPool, order_id: int):
     async with cnx.connection() as cnx:
         async with cnx.cursor(row_factory=dict_row) as cur:

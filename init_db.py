@@ -53,7 +53,7 @@ def init_db():
 
                 id SERIAL PRIMARY KEY,
                 ip_address varchar(100) NOT NULL,
-                article_viewed int REFERENCES article(id) NOT NULL,
+                article_viewed int REFERENCES article(id),
                 visit_date timestamp DEFAULT CURRENT_TIMESTAMP
 
             );
@@ -66,8 +66,9 @@ def init_db():
                 last_name VARCHAR(100) NOT NULL,
                 wilaya VARCHAR(100) NOT NULL,
                 phone_number VARCHAR(50),
-                article_order int REFERENCES article(id) NOT NULL,
+                article_ordered int REFERENCES article(id) NOT NULL,
                 quantity int NOT NULL,
+                home_dilevery boolean,
                 purchase_date timestamp DEFAULT CURRENT_TIMESTAMP,
                 delivery_date timestamp ,
                 order_proceded boolean DEFAULT false

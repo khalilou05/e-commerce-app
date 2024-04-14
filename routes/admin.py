@@ -1,8 +1,5 @@
-import datetime
+from fastapi import APIRouter, HTTPException, Request
 
-from fastapi import APIRouter, HTTPException, Request, Response
-
-from DB.db_auth import db_change_admin_passwd
 from DB.db_blacklist import db_blacklist_add, db_blacklist_check, db_blacklist_remove
 from DB.db_orders import (
     db_get_all_order,
@@ -10,7 +7,6 @@ from DB.db_orders import (
     db_remove_order,
     db_set_order_delivred,
 )
-from utils.pswdhash import hash_passwd
 
 route = APIRouter()
 
@@ -25,10 +21,11 @@ async def get_all_order(
     offset: int | None = None,
     limit: int | None = None,
     date: str | None = None,
+    dilivred: bool | None = None,
 ):
     if not req.auth:
         return HTTPException(status_code=401)
-    all_order = await db_get_all_order(req.app.pool, offset, limit, date)
+    all_order = await db_get_all_order(req.app.pool, offset, limit, date, dilivred)
     return all_order
 
 
@@ -53,7 +50,7 @@ async def set_ordr_delivred(req: Request, id: int):
 
 
 # DELETE ORDER
-@route.post("/order/{id}")
+@route.delete("/order/{id}")
 async def delete_order(req: Request, id: int):
     try:
         delted = await db_remove_order(req.app.pool, id)
@@ -77,24 +74,3 @@ async def remove_ban(phone_number: int, req: Request):
     if in_blacklist:
         await db_blacklist_remove(req.app.pool, phone_number)
     return {"info": "not in blacklist"}
-
-
-# ! -------- RESET ADMIN PASSWORD -------------------
-@route.post("/resetpswd")
-async def reset_passwd(raw_password, req: Request):
-    hashed_password = hash_passwd(raw_password)
-    pswd_changed = await db_change_admin_passwd(hashed_password)
-    return Response(content={}, status_code=201)
-
-
-# ! -------- test  ----------------
-@route.post("/test")
-async def get_all_order(
-    req: Request,
-    offset: int | None = None,
-    limit: int | None = None,
-    date: str | None = None,
-):
-    da = datetime.date.today()
-
-    return req.base_url.path
