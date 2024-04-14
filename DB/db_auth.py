@@ -27,5 +27,3 @@ async def db_change_admin_passwd(cnx: AsyncConnectionPool, password: str | bytes
             """,
             (password,),
         )
-
-        return await cur.fetchone()

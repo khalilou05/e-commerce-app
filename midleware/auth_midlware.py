@@ -8,6 +8,7 @@ banned_reqest = ["DLETE", "PATCH", "PUT"]
 
 class Authmid(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+        # todo clean this shit
         # token = request.headers.get("token")
         # request.scope["auth"] = await isAuthanticated(token)
         # if not request.auth and request.method in banned_reqest:

@@ -26,9 +26,6 @@ route = APIRouter()
 async def all_article(
     req: Request, offset: int | None = None, limit: int | None = None
 ):
-    visited = await db_check_visitor_ip(req.app.pool, req.client.host)
-    if not visited:
-        await db_add_visitor_ip(req.app.pool, req.client.host)
     data = await db_get_all_article(req.app.pool, offset, limit)
     return data
 
@@ -106,3 +103,13 @@ async def test(
     except:
 
         raise HTTPException(status_code=400, detail="not created")
+
+
+#! ------ UPLAOD ARTICLE IMAGES -----------
+@route.post("/test")
+# todo remove this route
+async def test(
+    req: Request,
+):
+
+    print(req.client.host)

@@ -68,7 +68,7 @@ async def db_get_article_by_id(cnx: AsyncConnectionPool, article_id: int):
         async with cnx.cursor(row_factory=dict_row) as cur:
             query1 = await cur.execute(
                 """--sql
-                SELECT A.id,A.title,A.price,A.description,I.img_url
+                SELECT A.id,A.title,A.price,A.quantity,A.description,I.img_url
                 FROM article A
                 JOIN img_url I ON I.article_id=A.id
                 WHERE A.id=%s;
@@ -92,6 +92,7 @@ async def db_get_article_by_id(cnx: AsyncConnectionPool, article_id: int):
                     "id": art["id"],
                     "title": art["title"],
                     "price": art["price"],
+                    "quantity": art["quantity"],
                     "description": art["description"],
                 }
             )
@@ -124,7 +125,7 @@ async def db_get_art_img_url(cnx: AsyncConnectionPool, article_id: int):
 
 
 async def db_update_article_by_id(
-    cnx: AsyncConnectionPool, article_id: int, data: Article_schema
+    cnx: AsyncConnectionPool, article_id: int, article: Article_schema
 ):
     async with cnx.connection() as cnx:
         async with cnx.cursor() as cur:
@@ -132,5 +133,11 @@ async def db_update_article_by_id(
                 """--sql
                                 UPDATE article SET title=%s,brand=%s,model=%s,description=%s  WHERE id=%s ;
                 """,
-                (data.title, data.brand, data.model, data.description, article_id),
+                (
+                    article.title,
+                    article.price,
+                    article.quantity,
+                    article.description,
+                    article_id,
+                ),
             )
