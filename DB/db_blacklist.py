@@ -13,7 +13,7 @@ async def db_blacklist_add(cnx: AsyncConnectionPool, phone_number: int):
             )
 
 
-async def db_blacklist_check(cnx: AsyncConnectionPool, phone_number: int):
+async def db_blacklist_check(cnx: AsyncConnectionPool, phone_number: str):
 
     async with cnx.connection() as cnx:
         async with cnx.cursor() as cur:
@@ -23,13 +23,12 @@ async def db_blacklist_check(cnx: AsyncConnectionPool, phone_number: int):
                  """,
                 (phone_number,),
             )
-            data = await cur.rowcount
-            if data == 0:
+            if cur.rowcount == 0:
                 return False
             return True
 
 
-async def db_blacklist_remove(cnx: AsyncConnectionPool, phone_number: int):
+async def db_blacklist_remove(cnx: AsyncConnectionPool, phone_number: str):
 
     async with cnx.connection() as cnx:
         async with cnx.cursor() as cur:

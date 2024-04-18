@@ -17,16 +17,18 @@ async def db_create_order(
                     first_name,last_name,
                     phone_number,
                     wilaya,
+                    baladiya,
                     quantity,
                     home_dilevery)
-                    VALUES (%s,%s,%s,%s,%s,%s,%s);
+                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s);
                  """,
                 (
                     article_id,
                     costumer_order.first_name,
                     costumer_order.last_name,
-                    costumer_order.phone_numer,
+                    costumer_order.phone_number,
                     costumer_order.wilaya,
+                    costumer_order.baladiya,
                     costumer_order.quantity,
                     costumer_order.home_dilevery,
                 ),
@@ -38,56 +40,73 @@ async def db_get_all_order(
     offset: int = 0,
     limit: int = 50,
     date: str | None = None,
-    dilvred: bool | None = None,
+    status: str | None = None,
 ):
     async with cnx.connection() as cnx:
         async with cnx.cursor(row_factory=dict_row) as cur:
-            if date == None and dilvred == None:
-                # get all orders standar filternig
+            if date == None and status == None:
+                #! get all orders standar filternig
                 sql = """--sql 
                 SELECT o.id,o.first_name,o.last_name,o.phone_number,
-                o.wilaya,o.article_ordered,o.quantity,
-                o.home_dilevery,art.id,art.price 
+                o.wilaya,o.baladiya,o.article_id,o.quantity,
+                o.home_dilevery,art.price
                 FROM costumer_order o
                 JOIN article art
-                ON article_ordered=art.id
+                ON article_id=art.id
+                WHERE o.status='NONE'
                 OFFSET %s 
                 LIMIT %s;"""
                 data = (offset, limit)
                 q1 = await cur.execute(sql, data)
-                date_filter = await q1.fetchall()
-                return date_filter
-            # get orders filtering -> delivred + date
-            if date and dilvred:
+                default = await q1.fetchall()
+                return default
+
+            #! get confirmed order
+            if status == "confirmed":
                 sql = """--sql 
-                SELECT id,first_name,last_name,phone_number,wilaya,article_ordered,quantity,home_dilevery,art.id,atr.price
-                FROM order 
+                SELECT o.id,o.first_name,o.last_name,o.phone_number,o.wilaya,o.baladiya,o.article_id,o.quantity,o.home_dilevery,art.id,art.price
+                FROM costumer_order o
                 JOIN article art
-                ON article_ordered=art.id
-                WHERE purchase_date=%s 
-                and order_proceded=%s
+                ON article_id=art.id
+                WHERE status='confirmed'
                 OFFSET %s 
                 LIMIT %s;
                 """
-                data = (date, dilvred, offset, limit)
+                data = (offset, limit)
                 q1 = await cur.execute(sql, data)
                 date_filter = await q1.fetchall()
                 return date_filter
 
-            # get all orders with date filtering
-            sql = """--sql 
-            SELECT id,first_name,last_name,phone_number,wilaya,article_ordered,quantity,home_dilevery,art.id,atr.price
-            FROM order 
-            JOIN article art
-            ON article_ordered=art.id
-            WHERE purchase_date=%s 
-            OFFSET %s 
-            LIMIT %s;"""
+            if status == "delivred":
+                sql = """--sql 
+                SELECT o.id,o.first_name,o.last_name,o.phone_number,o.wilaya,o.baladiya,o.article_id,o.quantity,o.home_dilevery,o.order_proceded,art.id,art.price
+                FROM costumer_order o
+                JOIN article art
+                ON article_id=art.id
+                WHERE o.status='delivred'
+                OFFSET %s 
+                LIMIT %s;
+                """
+                data = (offset, limit)
+                q1 = await cur.execute(sql, data)
+                result = await q1.fetchall()
+                return result
 
-            data = (date, offset, limit)
-            q1 = await cur.execute(sql, data)
-            resp = await q1.fetchall()
-        return resp
+            # get all orders with purchase date filtering
+            if date:
+                sql = """--sql 
+                SELECT o.id,o.first_name,o.last_name,o.phone_number,o.wilaya,o.baladiya,o.article_id,o.quantity,o.home_dilevery,o.order_proceded,art.id,art.price
+                FROM costumer_order o
+                JOIN article art
+                ON article_id=art.id
+                WHERE purchase_date=%s 
+                OFFSET %s 
+                LIMIT %s;"""
+
+                data = (date, offset, limit)
+                q1 = await cur.execute(sql, data)
+                resp = await q1.fetchall()
+                return resp
 
 
 # note to think about it
@@ -108,22 +127,32 @@ async def db_get_order_by_id(cnx: AsyncConnectionPool, order_id: int):
             return data
 
 
-async def db_set_order_delivred(cnx: AsyncConnectionPool, order_id: int):
+async def db_set_order_confirmed(cnx: AsyncConnectionPool, order_id: int):
     async with cnx.connection() as cnx:
         async with cnx.cursor() as cur:
             query = await cur.execute(
                 """--sql
                 UPDATE order
-                SET order_proceded = true, delivery_date= CURRENT_TIMESTAMP
+                SET order_confirmed = true
                 WHERE id=%s
                 ;
                 """,
                 (order_id,),
             )
-            row = await query.rowcount
-            if row == 1:
-                return True
-            return False
+
+
+async def db_set_order_archived_and_shiped(cnx: AsyncConnectionPool, order_id: int):
+    async with cnx.connection() as cnx:
+        async with cnx.cursor() as cur:
+            query = await cur.execute(
+                """--sql
+                UPDATE order
+                SET order_archived = true
+                WHERE id=%s
+                ;
+                """,
+                (order_id,),
+            )
 
 
 async def db_remove_order(cnx: AsyncConnectionPool, order_id: int):
@@ -131,13 +160,9 @@ async def db_remove_order(cnx: AsyncConnectionPool, order_id: int):
         async with cnx.cursor() as cur:
             query = await cur.execute(
                 """--sql
-                DELETE FROM order
+                DELETE FROM costumer_order
                 WHERE id=%s
                 ;
                 """,
                 (order_id,),
             )
-            row = await query.rowcount
-            if row == 1:
-                return True
-            return False

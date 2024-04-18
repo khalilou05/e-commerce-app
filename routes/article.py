@@ -13,6 +13,7 @@ from DB.db_article import (
     db_get_article_by_id,
     db_update_article_by_id,
 )
+from DB.db_blacklist import db_blacklist_check
 from DB.db_orders import db_create_order
 from DB.db_visitor import db_add_article_visitor, db_add_visitor_ip, db_check_visitor_ip
 from schema.shcema import Article_schema, Order
@@ -48,9 +49,14 @@ async def get_article_by_id(id: int, req: Request):
 @route.post("/article/{article_id}")
 # todo check to blacklist befor proceding an order
 async def order_article(req: Request, order_info: Order, article_id):
-    order_created = await db_create_order(req.app.pool, order_info, article_id)
-    print(order_created)
-    return order_created
+    try:
+        inBlacklist = await db_blacklist_check(req.app.pool, order_info.phone_number)
+        if inBlacklist:
+            raise HTTPException(status_code=400, detail="you are banned")
+        order_created = await db_create_order(req.app.pool, order_info, article_id)
+        return order_created
+    except:
+        raise HTTPException(status_code=400)
 
 
 #! ------ DELETE ARTICLE BY ID -----------

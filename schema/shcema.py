@@ -11,10 +11,15 @@ class Article_schema(BaseModel):
 class Order(BaseModel):
     first_name: str
     last_name: str
-    phone_numer: str
+    phone_number: str
     wilaya: str
+    baladiya: str
     quantity: int
     home_dilevery: bool = False
+
+
+class phoneNumber(BaseModel):
+    phone_number: list[str]
 
 
 class login_data(BaseModel):

@@ -1,8 +1,9 @@
 import psycopg
 
+from settings import db_name, db_pass, db_user
 from utils.pswdhash import hash_passwd
 
-cnx = psycopg.connect("dbname=djamel user=postgres password=khalil")
+cnx = psycopg.connect(f"dbname={db_name} user={db_user} password={db_pass}")
 
 
 def init_db():
@@ -42,7 +43,7 @@ def init_db():
             CREATE TABLE black_list(
 
                 id SERIAL PRIMARY KEY,
-                phone_number INT NOT NULL,
+                phone_number varchar(10) NOT NULL,
                 banned_date timestamp DEFAULT CURRENT_TIMESTAMP
 
 
@@ -52,7 +53,7 @@ def init_db():
             CREATE TABLE visitor(
 
                 id SERIAL PRIMARY KEY,
-                ip_address varchar(100) NOT NULL,
+                ip_address varchar(30) NOT NULL,
                 article_viewed int REFERENCES article(id),
                 visit_date timestamp DEFAULT CURRENT_TIMESTAMP
 
@@ -62,16 +63,17 @@ def init_db():
             CREATE TABLE costumer_order(
             
                 id SERIAL PRIMARY KEY,
-                first_name VARCHAR(100) NOT NULL,
-                last_name VARCHAR(100) NOT NULL,
-                wilaya VARCHAR(100) NOT NULL,
-                phone_number VARCHAR(50),
+                first_name VARCHAR(30) NOT NULL,
+                last_name VARCHAR(30) NOT NULL,
+                wilaya VARCHAR(15) NOT NULL,
+                baladiya VARCHAR(30) NOT NULL,
+                phone_number VARCHAR(10),
                 article_id int REFERENCES article(id) NOT NULL,
                 quantity int NOT NULL,
                 home_dilevery boolean,
-                purchase_date timestamp DEFAULT CURRENT_TIMESTAMP,
-                delivery_date timestamp ,
-                order_proceded boolean DEFAULT false
+                order_date timestamp DEFAULT CURRENT_TIMESTAMP,
+                confirmed_date timestamp ,
+                status VARCHAR(10) DEFAULT 'NONE'
 
             );
 
