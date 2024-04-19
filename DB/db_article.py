@@ -65,6 +65,20 @@ async def db_get_all_article(
             return data
 
 
+async def db_check_quantity_article(cnx: AsyncConnectionPool, article_id: int):
+    async with cnx.connection() as cnx:
+        async with cnx.cursor() as cur:
+            q1 = await cur.execute(
+                """--sql
+                                SELECT quantity FROM article WHERE id=%s
+                                ;
+                                """,
+                (article_id,),
+            )
+            data = (await q1.fetchone())[0]
+            return data
+
+
 async def db_get_article_by_id(cnx: AsyncConnectionPool, article_id: int):
     async with cnx.connection() as cnx:
         async with cnx.cursor(row_factory=dict_row) as cur:

@@ -41,6 +41,7 @@ async def db_get_all_order(
     limit: int = 50,
     date: str | None = None,
     status: str | None = None,
+    count: bool | None = None,
 ):
     async with cnx.connection() as cnx:
         async with cnx.cursor(row_factory=dict_row) as cur:
@@ -132,7 +133,7 @@ async def db_set_order_confirmed(cnx: AsyncConnectionPool, order_id: int):
         async with cnx.cursor() as cur:
             query = await cur.execute(
                 """--sql
-                UPDATE order
+                UPDATE costumer_order
                 SET order_confirmed = true
                 WHERE id=%s
                 ;
@@ -141,12 +142,35 @@ async def db_set_order_confirmed(cnx: AsyncConnectionPool, order_id: int):
             )
 
 
+async def db_count_all_roder(cnx: AsyncConnectionPool, status: str | None):
+    async with cnx.connection() as cnx:
+        async with cnx.cursor() as cur:
+            if status:
+                query = await cur.execute(
+                    """--sql
+                    SELECT count(*) FROM costumer_order
+                    WHERE status=%s
+                    ;
+                    """,
+                    (status,),
+                )
+                data = await query.fetchone()
+                return data
+            query = await cur.execute(
+                """--sql
+                    SELECT count(*) FROM costumer_order;
+                    """,
+            )
+            data = await query.fetchone()
+            return data
+
+
 async def db_set_order_archived_and_shiped(cnx: AsyncConnectionPool, order_id: int):
     async with cnx.connection() as cnx:
         async with cnx.cursor() as cur:
             query = await cur.execute(
                 """--sql
-                UPDATE order
+                UPDATE costumer_order
                 SET order_archived = true
                 WHERE id=%s
                 ;

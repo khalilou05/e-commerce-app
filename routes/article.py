@@ -2,9 +2,10 @@ import os
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, File, Form, HTTPException, Request, Response, UploadFile
+from fastapi import APIRouter, Form, HTTPException, Request, Response, UploadFile
 
 from DB.db_article import (
+    db_check_quantity_article,
     db_create_article,
     db_create_img_url,
     db_delete_article_by_id,
@@ -15,7 +16,7 @@ from DB.db_article import (
 )
 from DB.db_blacklist import db_blacklist_check
 from DB.db_orders import db_create_order
-from DB.db_visitor import db_add_article_visitor, db_add_visitor_ip, db_check_visitor_ip
+from DB.db_visitor import db_add_article_visitor, db_check_visitor_ip
 from schema.shcema import Article_schema, Order
 from utils.img_upload import article_img_upload
 
@@ -47,22 +48,23 @@ async def get_article_by_id(id: int, req: Request):
 
 #! ------ ORDER ARTICLE -----------
 @route.post("/article/{article_id}")
-# todo check to blacklist befor proceding an order
 async def order_article(req: Request, order_info: Order, article_id):
-    try:
-        inBlacklist = await db_blacklist_check(req.app.pool, order_info.phone_number)
-        if inBlacklist:
-            raise HTTPException(status_code=400, detail="you are banned")
-        order_created = await db_create_order(req.app.pool, order_info, article_id)
-        return order_created
-    except:
-        raise HTTPException(status_code=400)
+
+    inBlacklist = await db_blacklist_check(req.app.pool, order_info.phone_number)
+    quantity_available = await db_check_quantity_article(req.app.pool, article_id)
+    if inBlacklist or quantity_available == 0:
+
+        raise HTTPException(status_code=400, detail="out of stock")
+
+    order_created = await db_create_order(req.app.pool, order_info, article_id)
+    return order_created
 
 
 #! ------ DELETE ARTICLE BY ID -----------
 @route.delete("/article/{id}")
 async def delete_article_by_id(id: int, req: Request):
-
+    if not req.auth:
+        raise HTTPException(status_code=401)
     try:
         img_list = await db_get_art_img_url(req.app.pool, id)
         deleted = await db_delete_article_by_id(req.app.pool, id)
@@ -78,7 +80,8 @@ async def delete_article_by_id(id: int, req: Request):
 #! ------ UPDATE ARTICLE BY ID -----------
 @route.put("/article/{id}")
 async def update_article(id: int, req: Request, article_data: Article_schema):
-
+    if not req.auth:
+        raise HTTPException(status_code=401)
     try:
         data = await db_update_article_by_id(req.app.pool, id, article_data)
         return data
@@ -89,7 +92,8 @@ async def update_article(id: int, req: Request, article_data: Article_schema):
 #! ------ CREATE ARTICLE -----------
 @route.post("/article", status_code=201)
 async def create_article(req: Request, article: Article_schema):
-
+    if not req.auth:
+        raise HTTPException(status_code=401)
     try:
         article_id = await db_create_article(req.app.pool, article)
         return {"id": article_id}
@@ -103,7 +107,8 @@ async def create_article(req: Request, article: Article_schema):
 async def test(
     images: list[UploadFile], req: Request, article_id: Annotated[int, Form()]
 ):
-
+    if not req.auth:
+        raise HTTPException(status_code=401)
     try:
         create_db_url = await db_create_img_url(req.app.pool, article_id, images)
         upload_img = await article_img_upload(article_id, images)
@@ -111,13 +116,3 @@ async def test(
     except:
 
         raise HTTPException(status_code=400, detail="not created")
-
-
-#! ------ UPLAOD ARTICLE IMAGES -----------
-@route.post("/test")
-# todo remove this route
-async def test(
-    req: Request,
-):
-
-    print(req.client.host)
