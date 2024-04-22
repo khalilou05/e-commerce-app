@@ -1,8 +1,7 @@
 import os
 from pathlib import Path
-from typing import Annotated
 
-from fastapi import APIRouter, Form, HTTPException, Request, Response, UploadFile
+from fastapi import APIRouter, Form, HTTPException, Request, UploadFile
 
 from DB.db_article import (
     db_check_quantity_article,
@@ -32,21 +31,23 @@ async def all_article(
     return data
 
 
-#! ------ GET ARTICLE BY ID -----------
+#! ------ GET ARTICLE BY ID --------------------------------------------
 @route.get("/article/{id}")
 async def get_article_by_id(id: int, req: Request):
     visited = await db_check_visitor_ip(req.app.pool, req.client.host)
     if not visited:
-        added = await db_add_article_visitor(req.app.pool, req.client.host, id)
-        if not added:
+        try:
+            await db_add_article_visitor(req.app.pool, req.client.host, id)
+        except:
             raise HTTPException(status_code=400)
     data = await db_get_article_by_id(req.app.pool, id)
+
     if not data:
         raise HTTPException(status_code=404)
     return data
 
 
-#! ------ ORDER ARTICLE -----------
+#! ------ ORDER ARTICLE --------------------------------------------
 @route.post("/article/{article_id}")
 async def order_article(req: Request, order_info: Order, article_id):
 
@@ -60,7 +61,7 @@ async def order_article(req: Request, order_info: Order, article_id):
     return order_created
 
 
-#! ------ DELETE ARTICLE BY ID -----------
+#! ------ DELETE ARTICLE BY ID ---------------------------------
 @route.delete("/article/{id}")
 async def delete_article_by_id(id: int, req: Request):
     if not req.auth:
@@ -77,7 +78,7 @@ async def delete_article_by_id(id: int, req: Request):
         raise HTTPException(status_code=400)
 
 
-#! ------ UPDATE ARTICLE BY ID -----------
+#! ------ UPDATE ARTICLE BY ID -----------------------------------------------
 @route.put("/article/{id}")
 async def update_article(id: int, req: Request, article_data: Article_schema):
     if not req.auth:

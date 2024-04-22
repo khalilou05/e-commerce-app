@@ -98,6 +98,15 @@ async def db_get_article_by_id(cnx: AsyncConnectionPool, article_id: int):
             if cur.rowcount == 0:
                 return False
 
+            query2 = await cur.execute(
+                """--sql
+                SELECT count(*) FROM visitor WHERE article_viewed=%s ;               
+                 """,
+                (article_id,),
+            )
+            resp = await query2.fetchone()
+            number_of_visit = resp["count"]
+
             article_data = {}
             img_list = []
             for item in data:
@@ -111,6 +120,7 @@ async def db_get_article_by_id(cnx: AsyncConnectionPool, article_id: int):
                     "price": art["price"],
                     "quantity": art["quantity"],
                     "description": art["description"],
+                    "viwed": number_of_visit,
                 }
             )
             article_data["img_url"] = img_list

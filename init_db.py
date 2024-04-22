@@ -1,3 +1,5 @@
+import json
+
 import psycopg
 
 from settings import db_name, db_pass, db_user
@@ -59,6 +61,15 @@ def create_DB_tables():
 
             );
 
+            CREATE TABLE shipping_cost(
+
+                id SERIAL PRIMARY KEY,
+                fr_wilaya varchar(30) NOT NULL,
+                ar_wilaya varchar(30) NOT NULL,
+                desk_price int NOT NULL,
+                home_price int NOT NULL
+            );
+
 
             CREATE TABLE costumer_order(
             
@@ -73,7 +84,7 @@ def create_DB_tables():
                 home_dilevery boolean,
                 order_date timestamp DEFAULT CURRENT_TIMESTAMP,
                 confirmed_date timestamp ,
-                status VARCHAR(10) DEFAULT 'none'
+                status VARCHAR(15) DEFAULT 'none'
 
             );
 
@@ -89,6 +100,19 @@ def create_DB_tables():
             """,
             ("admin", hashed_psswd),
         )
+
+        with open("./wilaya_dz.json", "r") as file:
+            wilaya_list = json.load(file)
+
+        for item in wilaya_list:
+
+            cur.execute(
+                """--sql
+                        
+                    INSERT INTO shipping_cost (fr_wilaya,ar_wilaya,desk_price,home_price) VALUES (%s,%s,%s,%s)  ; 
+                """,
+                (item["frenchName"], item["arabicName"], 0, 0),
+            )
 
 
 if __name__ == "__main__":

@@ -22,7 +22,7 @@ async def admin_login(login_data: login_data, req: Request, res: Response):
     if not pascheck:
         return HTTPException(status_code=401, detail="Invalid email or password")
     token = await make_token(id)
-    response = res.set_cookie(key="token", value=token)
+    response = res.set_cookie(key="token", value=token, secure=True)
 
     return response
 
@@ -34,5 +34,5 @@ async def reset_passwd(raw_password, req: Request):
     if not req.auth:
         raise HTTPException(status_code=401)
     hashed_password = hash_passwd(raw_password)
-    pswd_changed = await db_change_admin_passwd(req.app.pool, hashed_password)
+    await db_change_admin_passwd(req.app.pool, hashed_password)
     return Response(content={}, status_code=201)
