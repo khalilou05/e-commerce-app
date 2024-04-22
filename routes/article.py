@@ -89,30 +89,24 @@ async def update_article(id: int, req: Request, article_data: Article_schema):
         raise HTTPException(status_code=404)
 
 
-#! ------ CREATE ARTICLE -----------
+#! ------ CREATE ARTICLE AND IMAGE UPLOAD -----------
 @route.post("/article", status_code=201)
-async def create_article(req: Request, article: Article_schema):
-    if not req.auth:
-        raise HTTPException(status_code=401)
-    try:
-        article_id = await db_create_article(req.app.pool, article)
-        return {"id": article_id}
-    except:
-
-        raise HTTPException(status_code=400, detail="not created")
-
-
-#! ------ UPLAOD ARTICLE IMAGES -----------
-@route.post("/upload")
-async def test(
-    images: list[UploadFile], req: Request, article_id: Annotated[int, Form()]
+async def create_article(
+    req: Request,
+    title: str = Form(),
+    description: str | None = Form(),
+    price: int = Form(),
+    quantity: int = Form(),
+    images: list[UploadFile] = Form(),
 ):
     if not req.auth:
         raise HTTPException(status_code=401)
     try:
-        create_db_url = await db_create_img_url(req.app.pool, article_id, images)
-        upload_img = await article_img_upload(article_id, images)
-        return Response(status_code=201)
+        article_id = await db_create_article(
+            req.app.pool, title, description, price, quantity
+        )
+        await db_create_img_url(req.app.pool, article_id, images)
+        await article_img_upload(article_id, images)
     except:
 
         raise HTTPException(status_code=400, detail="not created")

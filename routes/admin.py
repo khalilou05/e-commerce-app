@@ -5,7 +5,6 @@ from DB.db_orders import (
     db_count_all_roder,
     db_get_all_order,
     db_remove_order,
-    db_set_order_archived_and_shiped,
     db_set_order_confirmed,
 )
 from schema.shcema import phoneNumber
@@ -28,7 +27,6 @@ async def get_all_order(
 ):
     if not req.auth:
         raise HTTPException(status_code=401)
-
     try:
         all_order = await db_get_all_order(
             req.app.pool, offset, limit, date, status, count
@@ -46,10 +44,6 @@ async def db_ordr_count(req: Request, status: str | None = None):
         raise HTTPException(status_code=401)
     order_count_number = await db_count_all_roder(req.app.pool, status)
     return order_count_number
-
-
-# except:
-# return HTTPException(status_code=404)
 
 
 # SET ORDER CONFIRMED
@@ -102,3 +96,12 @@ async def add_ban(phone_number: phoneNumber, req: Request):
         if in_blacklist:
             return
         await db_blacklist_add(req.app.pool, phoneN)
+
+
+# ! -------- test  ----------------
+# todo remove this route
+@route.post("/test")
+async def test(req: Request):
+
+    data = await db_count_all_roder(req.app.pool)
+    return data

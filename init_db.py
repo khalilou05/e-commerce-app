@@ -6,7 +6,7 @@ from utils.pswdhash import hash_passwd
 cnx = psycopg.connect(f"dbname={db_name} user={db_user} password={db_pass}")
 
 
-def init_db():
+def create_DB_tables():
     with cnx as cur:
         cur.execute(
             """
@@ -73,7 +73,7 @@ def init_db():
                 home_dilevery boolean,
                 order_date timestamp DEFAULT CURRENT_TIMESTAMP,
                 confirmed_date timestamp ,
-                status VARCHAR(10) DEFAULT 'NONE'
+                status VARCHAR(10) DEFAULT 'none'
 
             );
 
@@ -92,4 +92,4 @@ def init_db():
 
 
 if __name__ == "__main__":
-    init_db()
+    create_DB_tables()

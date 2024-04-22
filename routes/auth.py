@@ -36,11 +36,3 @@ async def reset_passwd(raw_password, req: Request):
     hashed_password = hash_passwd(raw_password)
     pswd_changed = await db_change_admin_passwd(req.app.pool, hashed_password)
     return Response(content={}, status_code=201)
-
-
-# ! -------- test -------------------
-@route.post("/test/{id}")
-# todo check here boy
-async def reset_passwd(req: Request, id: int):
-    print(req.url.path)
-    return {"id": id}

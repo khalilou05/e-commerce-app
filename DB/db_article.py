@@ -24,7 +24,9 @@ async def db_create_img_url(
                 )
 
 
-async def db_create_article(cnx: AsyncConnectionPool, article: Article_schema):
+async def db_create_article(
+    cnx: AsyncConnectionPool, title, description, price, quantity
+):
 
     async with cnx.connection() as cnx:
         async with cnx.cursor() as cur:
@@ -35,11 +37,10 @@ async def db_create_article(cnx: AsyncConnectionPool, article: Article_schema):
                 VALUES (%s,%s,%s,%s) 
                 RETURNING id;
                 """,
-                (article.title, article.description, article.price, article.quantity),
+                (title, description, price, quantity),
             )
-            q = await query.fetchone()
-            article_id = q[0]
-            return article_id
+            article_id = await query.fetchone()
+            return article_id[0]
 
 
 async def db_get_all_article(
