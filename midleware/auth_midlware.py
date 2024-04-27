@@ -1,4 +1,4 @@
-from fastapi import Request, responses
+from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from settings import DEV_MODE

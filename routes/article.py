@@ -27,8 +27,11 @@ route = APIRouter()
 async def all_article(
     req: Request, offset: int | None = None, limit: int | None = None
 ):
-    data = await db_get_all_article(req.app.pool, offset, limit)
-    return data
+    try:
+        data = await db_get_all_article(req.app.pool, offset, limit)
+        return data
+    except:
+        raise HTTPException(status_code=400)
 
 
 #! ------ GET ARTICLE BY ID --------------------------------------------
@@ -48,8 +51,8 @@ async def get_article_by_id(id: int, req: Request):
 
 
 #! ------ ORDER ARTICLE --------------------------------------------
-@route.post("/article/{article_id}")
-async def order_article(req: Request, order_info: Order, article_id):
+@route.post("/article/{article_id}", status_code=201)
+async def order_article(req: Request, order_info: Order, article_id: int):
 
     inBlacklist = await db_blacklist_check(req.app.pool, order_info.phone_number)
     quantity_available = await db_check_quantity_article(req.app.pool, article_id)
@@ -57,8 +60,7 @@ async def order_article(req: Request, order_info: Order, article_id):
 
         raise HTTPException(status_code=400, detail="out of stock")
 
-    order_created = await db_create_order(req.app.pool, order_info, article_id)
-    return order_created
+    await db_create_order(req.app.pool, order_info, article_id)
 
 
 #! ------ DELETE ARTICLE BY ID ---------------------------------
@@ -109,5 +111,4 @@ async def create_article(
         await db_create_img_url(req.app.pool, article_id, images)
         await article_img_upload(article_id, images)
     except:
-
         raise HTTPException(status_code=400, detail="not created")

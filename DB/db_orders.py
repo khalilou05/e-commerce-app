@@ -12,6 +12,7 @@ async def db_create_order(
 
     async with cnx.connection() as cnx:
         async with cnx.cursor() as cur:
+
             await cur.execute(
                 """--sql
                     INSERT INTO costumer_order 
@@ -115,7 +116,13 @@ async def db_get_all_order(
 async def db_set_order_confirmed(cnx: AsyncConnectionPool, order_id: int):
     async with cnx.connection() as cnx:
         async with cnx.cursor() as cur:
-            query = await cur.execute(
+            await cur.execute(
+                """--sql
+                UPDATE article SET quantity = quantity - 1 WHERE id = (SELECT article_id FROM costumer_order WHERE id=%s);
+                """,
+                (order_id,),
+            )
+            await cur.execute(
                 """--sql
                 UPDATE costumer_order
                 SET status = "confirmed" AND confirmed_date=CURRENT_TIMESTAMP

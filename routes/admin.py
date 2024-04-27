@@ -43,7 +43,7 @@ async def get_all_order(
 
 # GET THE NUMBER OF ALL ORDER
 @route.get("/order/count")
-async def db_ordr_count(req: Request, status: str | None = None):
+async def db_ordr_count(req: Request):
     if not req.auth:
         raise HTTPException(status_code=401)
     order_count_number = await db_count_all_roder(req.app.pool)

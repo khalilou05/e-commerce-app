@@ -76,8 +76,8 @@ async def db_check_quantity_article(cnx: AsyncConnectionPool, article_id: int):
                                 """,
                 (article_id,),
             )
-            data = (await q1.fetchone())[0]
-            return data
+            data = await q1.fetchone()
+            return data[0]
 
 
 async def db_get_article_by_id(cnx: AsyncConnectionPool, article_id: int):
