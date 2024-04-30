@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Form, HTTPException, Request
+from fastapi import APIRouter, Form, HTTPException, Request, UploadFile
 
 from DB.db_blacklist import db_blacklist_add, db_blacklist_check, db_blacklist_remove
 from DB.db_orders import (
@@ -50,33 +50,32 @@ async def db_ordr_count(req: Request):
     return order_count_number
 
 
-# SET ORDER CONFIRMED ( BULK )
+# SET ORDER CONFIRMED ( SINGLE AND BULK OPERATIONS )
 @route.post("/order/confirm")
 async def set_ordr_confirmed(req: Request):
     if not req.auth:
         raise HTTPException(status_code=401)
-    idsList = await req.json()
-    for num in idsList:
-        try:
-            await db_set_order_confirmed(req.app.pool, num)
-        except:
-            return HTTPException(status_code=404)
+    idsList: int | list[int] = await req.json()
+    if type(idsList) == list:
+        for order_id in idsList:
+            await db_set_order_confirmed(req.app.pool, order_id)
+    await db_set_order_confirmed(req.app.pool, idsList)
 
 
-# DELETE ORDER ( BULK )
+# DELETE ORDER ( SINGLE AND BULK OPERATIONS )
 @route.delete("/order/delete")
 async def delete_order(req: Request):
     if not req.auth:
         raise HTTPException(status_code=401)
-    idList: list[int] = await req.json()
-    for id in idList:
-        try:
-            await db_remove_order(req.app.pool, id)
-        except:
-            return HTTPException(status_code=400)
+    idList: int | list[int] = await req.json()
+    if type(idList) == list:
+        for order_id in idList:
+            await db_remove_order(req.app.pool, order_id)
+    await db_remove_order(req.app.pool, idList)
 
 
 # ! -------- BLACKLIST COSTUMER  ----------------
+# add a phone number to blacklist
 @route.post("/blacklist")
 async def add_ban(req: Request):
     if not req.auth:
@@ -90,7 +89,7 @@ async def add_ban(req: Request):
         await db_blacklist_add(req.app.pool, phone)
 
 
-# delete from blacklist
+# delete phone number from blacklist
 @route.delete("/blacklist")
 async def remove_ban(req: Request):
     if not req.auth:
@@ -109,9 +108,9 @@ async def test(req: Request):
         raise HTTPException(status_code=400)
 
 
-# add a wilaya cost
+# add a wilaya shipping cost
 @route.post("/shipping")
-async def test(
+async def add_wilayaCost(
     req: Request,
     wilaya: str = Form(),
     desk_price: int = Form(),
@@ -123,9 +122,9 @@ async def test(
         raise HTTPException(status_code=400)
 
 
-# delte a wilaya cost
+# update a wilaya shipping cost
 @route.put("/shipping")
-async def test(
+async def update_wilayaCost(
     req: Request,
 ):
     wilaya = await req.json()
@@ -135,9 +134,9 @@ async def test(
         raise HTTPException(status_code=400)
 
 
-# update a wilaya cost
+# delete a wilaya from shipping cost list
 @route.delete("/shipping")
-async def test(
+async def delete_wilayaCost(
     req: Request,
     desk_price: int = Form(),
     home_price: int = Form(),
@@ -165,7 +164,14 @@ async def test(
 # ! -------- test  ----------------
 # todo remove this route
 @route.post("/test")
-async def test(req: Request):
+async def test(req: Request, images: list[UploadFile]):
 
-    data = await db_count_all_roder(req.app.pool)
-    return data
+    # for img in images:
+    #     imgFormat = img.content_type.split("/")
+    #     print(imgFormat[1])
+    valid_extension = ["jpg", "jpeg", "png", "webp", "avif"]
+    for image in images:
+        imgFormat = image.content_type.split("/")
+        if imgFormat[1] not in valid_extension:
+            raise HTTPException(status_code=400)
+        print("valid images")

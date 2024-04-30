@@ -125,7 +125,7 @@ async def db_set_order_confirmed(cnx: AsyncConnectionPool, order_id: int):
             await cur.execute(
                 """--sql
                 UPDATE costumer_order
-                SET status = "confirmed" AND confirmed_date=CURRENT_TIMESTAMP
+                SET status = 'confirmed',confirmed_date=CURRENT_TIMESTAMP
                 WHERE id=%s
                 ;
                 """,

@@ -27,12 +27,29 @@ async def admin_login(login_data: login_data, req: Request, res: Response):
     return response
 
 
-# ! -------- RESET ADMIN PASSWORD -------------------
-@route.post("/resetpswd")
+# ! -------- RESET ADMIN PASSWORD ( MUST BE LOGED IN) -------------------
+@route.post("/resetpassword")
 # todo check here boy
-async def reset_passwd(raw_password, req: Request):
+async def reset_passwd(req: Request):
     if not req.auth:
         raise HTTPException(status_code=401)
+    raw_password = req.json()
     hashed_password = hash_passwd(raw_password)
     await db_change_admin_passwd(req.app.pool, hashed_password)
     return Response(content={}, status_code=201)
+
+
+# ! -------- FORGOT PASSWORD -------------------
+@route.post("/forgotpassword")
+# todo add the logic
+async def forgot_password(req: Request):
+
+    pass
+
+
+# ! -------- LOGOUT AND DELETE THE COOKIE -------------------
+@route.post("/logout")
+# todo add the logic
+async def logout(req: Request):
+
+    pass

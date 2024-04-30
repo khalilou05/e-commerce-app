@@ -17,6 +17,7 @@ def create_DB_tables():
 
                 id SERIAL PRIMARY KEY,
                 user_name VARCHAR(100) UNIQUE NOT NULL,
+                email VARCHAR(100) NOT NULL,
                 password bytea NOT NULL
                 
             );

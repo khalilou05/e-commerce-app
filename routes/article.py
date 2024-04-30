@@ -70,7 +70,7 @@ async def delete_article_by_id(id: int, req: Request):
         raise HTTPException(status_code=401)
     try:
         img_list = await db_get_art_img_url(req.app.pool, id)
-        deleted = await db_delete_article_by_id(req.app.pool, id)
+        await db_delete_article_by_id(req.app.pool, id)
         path = Path() / "static"
 
         for img in img_list:
@@ -104,6 +104,12 @@ async def create_article(
 ):
     if not req.auth:
         raise HTTPException(status_code=401)
+    # check if images extensions are valid
+    valid_extension = ["jpg", "jpeg", "png", "webp", "avif"]
+    for image in images:
+        imgFormat = image.content_type.split("/")
+        if imgFormat[1] not in valid_extension:
+            raise HTTPException(status_code=400, detail="not valid images")
     try:
         article_id = await db_create_article(
             req.app.pool, title, description, price, quantity

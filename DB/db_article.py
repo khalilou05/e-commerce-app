@@ -11,8 +11,9 @@ async def db_create_img_url(
 
     async with cnx.connection() as cnx:
         async with cnx.cursor() as cur:
-            for index, _ in enumerate(images):
-                img_url = f"art_{article_id}_img_{index+1}.jpeg"
+            for index, image in enumerate(images):
+                imgFormat = image.content_type.split("/")
+                img_url = f"art_{article_id}_img_{index+1}.{imgFormat[1]}"
                 img_number = index + 1
                 await cur.execute(
                     """--sql
