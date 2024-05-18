@@ -17,7 +17,7 @@ async def db_create_order(
                 """--sql
                     INSERT INTO costumer_order 
                     (article_id,
-                    first_name,last_name,
+                    full_name,
                     phone_number,
                     wilaya,
                     baladiya,
@@ -27,8 +27,8 @@ async def db_create_order(
                  """,
                 (
                     article_id,
-                    costumer_order.first_name,
-                    costumer_order.last_name,
+                    costumer_order.full_name,
+                    costumer_order,
                     costumer_order.phone_number,
                     costumer_order.wilaya,
                     costumer_order.baladiya,
@@ -50,7 +50,7 @@ async def db_get_all_order(
             #! get all orders standar filternig
             if date == None and status == None:
                 sql = """--sql 
-                SELECT o.id,o.first_name,o.last_name,o.phone_number,
+                SELECT o.id,o.full_name,o.phone_number,
                 o.wilaya,o.baladiya,o.article_id,o.quantity,o.order_date,
                 o.home_dilevery,art.price
                 FROM costumer_order o
@@ -66,7 +66,7 @@ async def db_get_all_order(
             #! not confirmed order date filtering
             if date:
                 sql = """--sql 
-                SELECT o.id,o.first_name,o.last_name,o.phone_number,
+                SELECT o.id,o.full_name,o.phone_number,
                 o.wilaya,o.baladiya,o.article_id,o.quantity,o.order_date,
                 o.home_dilevery,art.price
                 FROM costumer_order o
@@ -83,7 +83,7 @@ async def db_get_all_order(
             #! get confirmed order
             if status == "confirmed" and date == None:
                 sql = """--sql 
-                SELECT o.id,o.first_name,o.last_name,o.phone_number,o.wilaya,o.baladiya,o.article_id,o.quantity,o.home_dilevery,art.id,art.price,o.confirmed_date
+                SELECT o.id,o.full_name,o.phone_number,o.wilaya,o.baladiya,o.article_id,o.quantity,o.home_dilevery,art.id,art.price,o.confirmed_date
                 FROM costumer_order o
                 JOIN article art
                 ON article_id=art.id
@@ -98,7 +98,7 @@ async def db_get_all_order(
             #! confirmed order + date
             if status == "confirmed" and date:
                 sql = """--sql 
-                SELECT o.id,o.first_name,o.last_name,o.phone_number,o.wilaya,o.baladiya,o.article_id,o.quantity,o.home_dilevery,art.id,art.price,o.confirmed_date
+                SELECT o.id,o.full_name,o.phone_number,o.wilaya,o.baladiya,o.article_id,o.quantity,o.home_dilevery,art.id,art.price,o.confirmed_date
                 FROM costumer_order o
                 JOIN article art
                 ON article_id=art.id
@@ -113,23 +113,38 @@ async def db_get_all_order(
                 return date_filter
 
 
-async def db_set_order_confirmed(cnx: AsyncConnectionPool, order_id: int):
+async def db_update_and_confirm_order(cnx: AsyncConnectionPool, order: Order):
     async with cnx.connection() as cnx:
         async with cnx.cursor() as cur:
             await cur.execute(
                 """--sql
-                UPDATE article SET quantity = quantity - 1 WHERE id = (SELECT article_id FROM costumer_order WHERE id=%s);
-                """,
-                (order_id,),
-            )
-            await cur.execute(
-                """--sql
                 UPDATE costumer_order
-                SET status = 'confirmed',confirmed_date=CURRENT_TIMESTAMP
+                SET full_name=%s,
+                wilaya=%s,
+                baladiya=%s
+                home_dilevery=%s
+                phone_number=%s,
+                status='confirmed',
+                quantity=%s,
+                confirmed_date=CURRENT_TIMESTAMP
                 WHERE id=%s
                 ;
                 """,
-                (order_id,),
+                (
+                    order.full_name,
+                    order.wilaya,
+                    order.baladiya,
+                    order.home_dilevery,
+                    order.phone_number,
+                    order.quantity,
+                    order.id,
+                ),
+            )
+            await cur.execute(
+                """--sql
+                UPDATE article SET quantity = quantity - 1 WHERE id = (SELECT article_id FROM costumer_order WHERE id=%s);
+                """,
+                (order.article_id,),
             )
 
 

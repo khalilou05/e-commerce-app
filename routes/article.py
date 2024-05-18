@@ -51,7 +51,7 @@ async def get_article_by_id(id: int, req: Request):
 
 
 #! ------ ORDER ARTICLE --------------------------------------------
-@route.post("/article/{article_id}", status_code=201)
+@route.post("/article/{article_id}/order", status_code=201)
 async def order_article(req: Request, order_info: Order, article_id: int):
 
     inBlacklist = await db_blacklist_check(req.app.pool, order_info.phone_number)
@@ -64,7 +64,7 @@ async def order_article(req: Request, order_info: Order, article_id: int):
 
 
 #! ------ DELETE ARTICLE BY ID ---------------------------------
-@route.delete("/article/{id}")
+@route.delete("/article/{id}/remove")
 async def delete_article_by_id(id: int, req: Request):
     if not req.auth:
         raise HTTPException(status_code=401)
@@ -81,7 +81,7 @@ async def delete_article_by_id(id: int, req: Request):
 
 
 #! ------ UPDATE ARTICLE BY ID -----------------------------------------------
-@route.put("/article/{id}")
+@route.put("/article/{id}/update")
 async def update_article(id: int, req: Request, article_data: Article_schema):
     if not req.auth:
         raise HTTPException(status_code=401)
@@ -93,7 +93,7 @@ async def update_article(id: int, req: Request, article_data: Article_schema):
 
 
 #! ------ CREATE ARTICLE AND IMAGE UPLOAD -----------
-@route.post("/article", status_code=201)
+@route.post("/article/add", status_code=201)
 async def create_article(
     req: Request,
     title: str = Form(),

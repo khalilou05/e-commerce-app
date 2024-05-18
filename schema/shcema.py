@@ -9,13 +9,14 @@ class Article_schema(BaseModel):
 
 
 class Order(BaseModel):
-    first_name: str
-    last_name: str
+    id: int | None = None
+    full_name: str
     phone_number: str
     wilaya: str
-    baladiya: str
-    quantity: int
-    home_dilevery: bool = False
+    baladiya: str | None = None
+    quantity: int | None = None
+    home_dilevery: bool
+    article_id: int
 
 
 class phoneNumber(BaseModel):

@@ -50,6 +50,6 @@ async def forgot_password(req: Request):
 # ! -------- LOGOUT AND DELETE THE COOKIE -------------------
 @route.post("/logout")
 # todo add the logic
-async def logout(req: Request):
-
-    pass
+async def logout(res: Response):
+    res.delete_cookie(key="token")
+    return res

@@ -1,20 +1,17 @@
-from fastapi import APIRouter, Form, HTTPException, Request, UploadFile
+from fastapi import APIRouter, HTTPException, Request
 
 from DB.db_blacklist import db_blacklist_add, db_blacklist_check, db_blacklist_remove
 from DB.db_orders import (
     db_count_all_roder,
     db_get_all_order,
     db_remove_order,
-    db_set_order_confirmed,
+    db_update_and_confirm_order,
 )
 from DB.db_shipping_cost import (
-    add_shipping_cost,
-    arabic_wilaya,
-    french_wilaya,
     get_all_wilaya_shipping_cost,
-    remove_wilaya,
     update_wilaya_shipping_cost,
 )
+from schema.shcema import Order
 
 route = APIRouter()
 
@@ -50,16 +47,13 @@ async def db_ordr_count(req: Request):
     return order_count_number
 
 
-# SET ORDER CONFIRMED ( SINGLE AND BULK OPERATIONS )
+# UPDATE & CONFIRME ORDER ( SINGLE AND BULK OPERATIONS )
 @route.post("/order/confirm")
-async def set_ordr_confirmed(req: Request):
+async def set_ordr_confirmed(req: Request, order_list: list[Order]):
     if not req.auth:
         raise HTTPException(status_code=401)
-    idsList: int | list[int] = await req.json()
-    if type(idsList) == list:
-        for order_id in idsList:
-            await db_set_order_confirmed(req.app.pool, order_id)
-    await db_set_order_confirmed(req.app.pool, idsList)
+    for order in order_list:
+        await db_update_and_confirm_order(req.app.pool, order)
 
 
 # DELETE ORDER ( SINGLE AND BULK OPERATIONS )
@@ -67,17 +61,17 @@ async def set_ordr_confirmed(req: Request):
 async def delete_order(req: Request):
     if not req.auth:
         raise HTTPException(status_code=401)
-    idList: int | list[int] = await req.json()
-    if type(idList) == list:
-        for order_id in idList:
-            await db_remove_order(req.app.pool, order_id)
-    await db_remove_order(req.app.pool, idList)
+    idList: list[int] = await req.json()
+    for order_id in idList:
+        await db_remove_order(req.app.pool, order_id)
 
 
 # ! -------- BLACKLIST COSTUMER  ----------------
 # add a phone number to blacklist
-@route.post("/blacklist")
-async def add_ban(req: Request):
+@route.post("/blacklist/add")
+async def add_ban(
+    req: Request,
+):
     if not req.auth:
         raise HTTPException(status_code=401)
     phone_number_list: list[str] = await req.json()
@@ -90,88 +84,38 @@ async def add_ban(req: Request):
 
 
 # delete phone number from blacklist
-@route.delete("/blacklist")
+@route.delete("/blacklist/remove")
 async def remove_ban(req: Request):
     if not req.auth:
         raise HTTPException(status_code=401)
-    phone_number = await req.json()
-    await db_blacklist_remove(req.app.pool, phone_number)
+    phone = await req.json()
+    await db_blacklist_remove(req.app.pool, phone)
 
 
 # ! -------- WILAYA SHIPPING COST   ----------------
 @route.get("/shipping")
-async def test(req: Request):
+async def get_all_wilaya_shipping_cost(req: Request, wilayaID: int):
     try:
+        # for the admin panel
         shipping_cost = await get_all_wilaya_shipping_cost(req.app.pool)
         return shipping_cost
     except:
         raise HTTPException(status_code=400)
 
 
-# add a wilaya shipping cost
-@route.post("/shipping")
-async def add_wilayaCost(
-    req: Request,
-    wilaya: str = Form(),
-    desk_price: int = Form(),
-    home_price: int = Form(),
-):
+# update wilaya shipping cost ( SINGLE AND BULK OPERATIONS )
+@route.put("/shipping/update")
+async def update_wilaya_cost(req: Request):
+
+    wilaya_list: list[dict] = await req.json()
     try:
-        await add_shipping_cost(req.app.pool, wilaya, desk_price, home_price)
+        for wilaya in wilaya_list:
+            await update_wilaya_shipping_cost(
+                req.app.pool,
+                wilaya["desk_price"],
+                wilaya["home_price"],
+                wilaya["active"],
+                wilaya["id"],
+            )
     except:
         raise HTTPException(status_code=400)
-
-
-# update a wilaya shipping cost
-@route.put("/shipping")
-async def update_wilayaCost(
-    req: Request,
-):
-    wilaya = await req.json()
-    try:
-        await remove_wilaya(req.app.pool, wilaya)
-    except:
-        raise HTTPException(status_code=400)
-
-
-# delete a wilaya from shipping cost list
-@route.delete("/shipping")
-async def delete_wilayaCost(
-    req: Request,
-    desk_price: int = Form(),
-    home_price: int = Form(),
-    wilaya: str = Form(),
-):
-    try:
-        await update_wilaya_shipping_cost(req.app.pool, desk_price, home_price, wilaya)
-    except:
-        raise HTTPException(status_code=400)
-
-
-#! --------- DZ WILAYA FOR DROPDOWN IN FRONTEND ---------------
-@route.get("/dzwilaya")
-async def test(
-    req: Request,
-    lang: str | None = None,
-):
-    if lang == "fr":
-        frwilaya = await french_wilaya(req.app.pool)
-        return frwilaya
-    arwilaya = await arabic_wilaya(req.app.pool)
-    return arwilaya
-
-
-# ! -------- test  ----------------
-# todo remove this route
-@route.post("/test")
-async def test(req: Request, images: list[UploadFile]):
-
-    # for img in images:
-    #     imgFormat = img.content_type.split("/")
-    #     print(imgFormat[1])
-    valid_extension = ["jpg", "jpeg", "png", "webp", "avif"]
-    for image in images:
-        imgFormat = image.content_type.split("/")
-        if imgFormat[1] not in valid_extension:
-            raise HTTPException(status_code=400)
-        print("valid images")

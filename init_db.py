@@ -2,10 +2,10 @@ import json
 
 import psycopg
 
-from settings import db_name, db_pass, db_user
+from settings import DB_NAME, DB_PASS, DB_USER
 from utils.pswdhash import hash_passwd
 
-cnx = psycopg.connect(f"dbname={db_name} user={db_user} password={db_pass}")
+cnx = psycopg.connect(f"dbname={DB_NAME} user={DB_USER} password={DB_PASS}")
 
 
 def create_DB_tables():
@@ -65,24 +65,23 @@ def create_DB_tables():
             CREATE TABLE shipping_cost(
 
                 id SERIAL PRIMARY KEY,
-                fr_wilaya varchar(30) NOT NULL,
-                ar_wilaya varchar(30) NOT NULL,
+                wilaya varchar(30) NOT NULL,
                 desk_price int NOT NULL,
-                home_price int NOT NULL
+                home_price int NOT NULL,
+                active boolean DEFAULT true
             );
 
 
             CREATE TABLE costumer_order(
             
                 id SERIAL PRIMARY KEY,
-                first_name VARCHAR(30) NOT NULL,
-                last_name VARCHAR(30) NOT NULL,
+                full_name VARCHAR(50) NOT NULL,
                 wilaya VARCHAR(15) NOT NULL,
-                baladiya VARCHAR(30) NOT NULL,
-                phone_number VARCHAR(10),
+                phone_number VARCHAR(10) NOT NULL,
                 article_id int REFERENCES article(id) NOT NULL,
-                quantity int NOT NULL,
-                home_dilevery boolean,
+                home_dilevery boolean NOT NULL,
+                quantity int DEFAULT 1,
+                baladiya VARCHAR(50),
                 order_date timestamp DEFAULT CURRENT_TIMESTAMP,
                 confirmed_date timestamp ,
                 status VARCHAR(15) DEFAULT 'none'
@@ -97,9 +96,9 @@ def create_DB_tables():
         cur.execute(
             """--sql
                     
-                INSERT INTO "user" (user_name,password) VALUES (%s,%s)  ; 
+                INSERT INTO "user" (user_name,email,password) VALUES (%s,%s,%s)  ; 
             """,
-            ("admin", hashed_psswd),
+            ("admin", "email@domain.com", hashed_psswd),
         )
 
         with open("./wilaya_dz.json", "r") as file:
@@ -110,9 +109,9 @@ def create_DB_tables():
             cur.execute(
                 """--sql
                         
-                    INSERT INTO shipping_cost (fr_wilaya,ar_wilaya,desk_price,home_price) VALUES (%s,%s,%s,%s)  ; 
+                    INSERT INTO shipping_cost (wilaya,desk_price,home_price) VALUES (%s,%s,%s)  ; 
                 """,
-                (item["frenchName"], item["arabicName"], 0, 0),
+                (item["arabicName"], 0, 0),
             )
 
 
