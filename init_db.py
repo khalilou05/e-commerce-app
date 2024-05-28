@@ -30,7 +30,8 @@ def create_DB_tables():
                 description text ,
                 price INT NOT NULL,
                 quantity INT NOT NULL,
-                published timestamp DEFAULT CURRENT_TIMESTAMP
+                published timestamp DEFAULT CURRENT_TIMESTAMP,
+                free_shipping bool DEFAULT false
 
             );
 
@@ -65,7 +66,8 @@ def create_DB_tables():
             CREATE TABLE shipping_cost(
 
                 id SERIAL PRIMARY KEY,
-                wilaya varchar(30) NOT NULL,
+                wilaya varchar(15) NOT NULL,
+                wilaya_code varchar(5) NOT NULL,
                 desk_price int NOT NULL,
                 home_price int NOT NULL,
                 active boolean DEFAULT true
@@ -75,13 +77,13 @@ def create_DB_tables():
             CREATE TABLE costumer_order(
             
                 id SERIAL PRIMARY KEY,
-                full_name VARCHAR(50) NOT NULL,
+                full_name VARCHAR(30) NOT NULL,
                 wilaya VARCHAR(15) NOT NULL,
                 phone_number VARCHAR(10) NOT NULL,
                 article_id int REFERENCES article(id) NOT NULL,
                 home_dilevery boolean NOT NULL,
                 quantity int DEFAULT 1,
-                baladiya VARCHAR(50),
+                baladiya VARCHAR(20),
                 order_date timestamp DEFAULT CURRENT_TIMESTAMP,
                 confirmed_date timestamp ,
                 status VARCHAR(15) DEFAULT 'none'
@@ -101,7 +103,7 @@ def create_DB_tables():
             ("admin", "email@domain.com", hashed_psswd),
         )
 
-        with open("./wilaya_dz.json", "r") as file:
+        with open("./wilaya_dz3.json", "r") as file:
             wilaya_list = json.load(file)
 
         for item in wilaya_list:
@@ -109,9 +111,9 @@ def create_DB_tables():
             cur.execute(
                 """--sql
                         
-                    INSERT INTO shipping_cost (wilaya,desk_price,home_price) VALUES (%s,%s,%s)  ; 
+                    INSERT INTO shipping_cost (wilaya,wilaya_code,desk_price,home_price) VALUES (%s,%s,%s,%s)  ; 
                 """,
-                (item["arabicName"], 0, 0),
+                (item["arabicName"], item["wilaya_code"], 0, 0),
             )
 
 

@@ -8,7 +8,9 @@ from DB.db_orders import (
     db_update_and_confirm_order,
 )
 from DB.db_shipping_cost import (
+    get_active_wilaya_for_frontend,
     get_all_wilaya_shipping_cost,
+    get_wilaya_cost_by_id,
     update_wilaya_shipping_cost,
 )
 from schema.shcema import Order
@@ -94,10 +96,25 @@ async def remove_ban(req: Request):
 
 # ! -------- WILAYA SHIPPING COST   ----------------
 @route.get("/shipping")
-async def get_all_wilaya_shipping_cost(req: Request, wilayaID: int):
+async def get_wilaya_shipping_cost(req: Request):
+
+    # for the admin panel
     try:
-        # for the admin panel
         shipping_cost = await get_all_wilaya_shipping_cost(req.app.pool)
+        return shipping_cost
+    except:
+        raise HTTPException(status_code=400)
+
+
+@route.get("/shipping/available")
+async def get_wilaya_shipping_cost_active(req: Request, wilayaId: int | None = None):
+
+    # for the frontend dropdown
+    try:
+        if wilayaId:
+            wilaya = await get_wilaya_cost_by_id(req.app.pool, wilayaId)
+            return wilaya
+        shipping_cost = await get_active_wilaya_for_frontend(req.app.pool)
         return shipping_cost
     except:
         raise HTTPException(status_code=400)

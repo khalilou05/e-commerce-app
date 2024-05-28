@@ -4,3 +4,4 @@ env.py
 .DS_Store
 test.py
 settings.py
+static/

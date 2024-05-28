@@ -44,6 +44,7 @@ async def db_create_article(
             return article_id[0]
 
 
+# get article for the admin panel
 async def db_get_all_article(
     cnx: AsyncConnectionPool, offset: int = 0, limit: int = 100
 ):
@@ -67,7 +68,31 @@ async def db_get_all_article(
             return data
 
 
-async def db_check_quantity_article(cnx: AsyncConnectionPool, article_id: int):
+# get article for the costumer
+# todo handle the image array for article costumer detaille
+async def db_get_all_article(
+    cnx: AsyncConnectionPool, offset: int = 0, limit: int = 100
+):
+    async with cnx.connection() as cnx:
+        async with cnx.cursor(row_factory=dict_row) as cur:
+            q1 = await cur.execute(
+                """--sql
+                                SELECT a.id,a.title,a.price,i.img_url
+                                FROM article a
+                                JOIN img_url i
+                                ON i.article_id=a.id
+                                WHERE i.img_number=1
+
+                                ;
+                                """,
+                (offset, limit),
+            )
+            data = await q1.fetchall()
+
+            return data
+
+
+async def db_check_article_quantity(cnx: AsyncConnectionPool, article_id: int):
     async with cnx.connection() as cnx:
         async with cnx.cursor() as cur:
             q1 = await cur.execute(
@@ -77,8 +102,11 @@ async def db_check_quantity_article(cnx: AsyncConnectionPool, article_id: int):
                                 """,
                 (article_id,),
             )
+
             data = await q1.fetchone()
-            return data[0]
+            if data is not None:
+                return True
+            return False
 
 
 async def db_get_article_by_id(cnx: AsyncConnectionPool, article_id: int):

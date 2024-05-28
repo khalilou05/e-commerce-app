@@ -23,12 +23,11 @@ async def db_create_order(
                     baladiya,
                     quantity,
                     home_dilevery)
-                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s);
+                    VALUES (%s,%s,%s,%s,%s,%s,%s);
                  """,
                 (
                     article_id,
                     costumer_order.full_name,
-                    costumer_order,
                     costumer_order.phone_number,
                     costumer_order.wilaya,
                     costumer_order.baladiya,
@@ -51,11 +50,13 @@ async def db_get_all_order(
             if date == None and status == None:
                 sql = """--sql 
                 SELECT o.id,o.full_name,o.phone_number,
-                o.wilaya,o.baladiya,o.article_id,o.quantity,o.order_date,
-                o.home_dilevery,art.price
+                o.wilaya,o.baladiya,o.article_id,o.quantity,to_char(o.order_date, 'YY-MM-DD HH24:MI') AS order_date,
+                o.home_dilevery,art.price,s.wilaya,s.desk_price,s.home_price
                 FROM costumer_order o
                 JOIN article art
                 ON article_id=art.id
+                JOIN shipping_cost s
+                ON o.wilaya=s.wilaya
                 WHERE o.status='none'
                 OFFSET %s 
                 LIMIT %s;"""

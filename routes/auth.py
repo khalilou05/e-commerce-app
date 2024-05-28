@@ -11,7 +11,7 @@ route = APIRouter()
 # ! -------- LOG IN AND GENERATE TOKEN -----------
 
 
-@route.post("/admin")
+@route.post("/login")
 async def admin_login(login_data: login_data, req: Request, res: Response):
     # todo some brut forse security
     exist, data = await db_get_login_info(req.app.pool, login_data.username)
@@ -24,7 +24,8 @@ async def admin_login(login_data: login_data, req: Request, res: Response):
     token = await make_token(id)
     response = res.set_cookie(key="token", value=token, secure=True)
 
-    return response
+    # return response
+    return {"res": "ok"}
 
 
 # ! -------- RESET ADMIN PASSWORD ( MUST BE LOGED IN) -------------------

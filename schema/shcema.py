@@ -16,7 +16,6 @@ class Order(BaseModel):
     baladiya: str | None = None
     quantity: int | None = None
     home_dilevery: bool
-    article_id: int
 
 
 class phoneNumber(BaseModel):

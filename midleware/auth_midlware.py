@@ -1,4 +1,4 @@
-from fastapi import Request
+from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from settings import DEV_MODE
@@ -10,6 +10,7 @@ class Authmid(BaseHTTPMiddleware):
         token = request.cookies.get("token")
         isAuth = await isAuthanticated(token)
         request.scope["auth"] = isAuth
+
         # todo check dev mode
         if DEV_MODE:
             request.scope["auth"] = True

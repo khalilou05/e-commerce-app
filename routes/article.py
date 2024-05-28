@@ -4,7 +4,7 @@ from pathlib import Path
 from fastapi import APIRouter, Form, HTTPException, Request, UploadFile
 
 from DB.db_article import (
-    db_check_quantity_article,
+    db_check_article_quantity,
     db_create_article,
     db_create_img_url,
     db_delete_article_by_id,
@@ -55,9 +55,10 @@ async def get_article_by_id(id: int, req: Request):
 async def order_article(req: Request, order_info: Order, article_id: int):
 
     inBlacklist = await db_blacklist_check(req.app.pool, order_info.phone_number)
-    quantity_available = await db_check_quantity_article(req.app.pool, article_id)
-    if inBlacklist or quantity_available == 0:
+    in_stock = await db_check_article_quantity(req.app.pool, article_id)
+    print(in_stock)
 
+    if inBlacklist or not in_stock:
         raise HTTPException(status_code=400, detail="out of stock")
 
     await db_create_order(req.app.pool, order_info, article_id)

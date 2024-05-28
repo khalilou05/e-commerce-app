@@ -1,0 +1,345 @@
+[
+  {
+    "id": 1,
+    "frenchName": "Adrar",
+    "arabicName": "أدرار",
+    "wilaya_code": "01"
+  },
+  {
+    "id": 2,
+    "frenchName": "Chlef",
+    "arabicName": "الشلف",
+    "wilaya_code": "02"
+  },
+  {
+    "id": 3,
+    "frenchName": "Laghouat",
+    "arabicName": "الأغواط",
+    "wilaya_code": "03"
+  },
+  {
+    "id": 4,
+    "frenchName": "Oum El Bouaghi",
+    "arabicName": "أم البواقي",
+    "wilaya_code": "04"
+  },
+  {
+    "id": 5,
+    "frenchName": "Batna",
+    "arabicName": "باتنة",
+    "wilaya_code": "05"
+  },
+  {
+    "id": 6,
+    "frenchName": "Béjaïa",
+    "arabicName": "بجاية",
+    "wilaya_code": "06"
+  },
+  {
+    "id": 7,
+    "frenchName": "Biskra",
+    "arabicName": "بسكرة",
+    "wilaya_code": "07"
+  },
+  {
+    "id": 8,
+    "frenchName": "Béchar",
+    "arabicName": "بشار",
+    "wilaya_code": "08"
+  },
+  {
+    "id": 9,
+    "frenchName": "Blida",
+    "arabicName": "البليدة",
+    "wilaya_code": "09"
+  },
+  {
+    "id": 10,
+    "frenchName": "Bouira",
+    "arabicName": "البويرة",
+    "wilaya_code": "10"
+  },
+  {
+    "id": 11,
+    "frenchName": "Tamanrasset",
+    "arabicName": "تمنراست",
+    "wilaya_code": "11"
+  },
+  {
+    "id": 12,
+    "frenchName": "Tébessa",
+    "arabicName": "تبسة",
+    "wilaya_code": "12"
+  },
+  {
+    "id": 13,
+    "frenchName": "Tlemcen",
+    "arabicName": "تلمسان",
+    "wilaya_code": "13"
+  },
+  {
+    "id": 14,
+    "frenchName": "Tiaret",
+    "arabicName": "تيارت",
+    "wilaya_code": "14"
+  },
+  {
+    "id": 15,
+    "frenchName": "Tizi Ouzou",
+    "arabicName": "تيزي وزو",
+    "wilaya_code": "15"
+  },
+  {
+    "id": 16,
+    "frenchName": "Alger",
+    "arabicName": "الجزائر",
+    "wilaya_code": "16"
+  },
+  {
+    "id": 17,
+    "frenchName": "Djelfa",
+    "arabicName": "الجلفة",
+    "wilaya_code": "17"
+  },
+  {
+    "id": 18,
+    "frenchName": "Jijel",
+    "arabicName": "جيجل",
+    "wilaya_code": "18"
+  },
+  {
+    "id": 19,
+    "frenchName": "Sétif",
+    "arabicName": "سطيف",
+    "wilaya_code": "19"
+  },
+  {
+    "id": 20,
+    "frenchName": "Saïda",
+    "arabicName": "سعيدة",
+    "wilaya_code": "20"
+  },
+  {
+    "id": 21,
+    "frenchName": "Skikda",
+    "arabicName": "سكيكدة",
+    "wilaya_code": "21"
+  },
+  {
+    "id": 22,
+    "frenchName": "Sidi Bel Abbès",
+    "arabicName": "سيدي بلعباس",
+    "wilaya_code": "22"
+  },
+  {
+    "id": 23,
+    "frenchName": "Annaba",
+    "arabicName": "عنابة",
+    "wilaya_code": "23"
+  },
+  {
+    "id": 24,
+    "frenchName": "Guelma",
+    "arabicName": "قالمة",
+    "wilaya_code": "24"
+  },
+  {
+    "id": 25,
+    "frenchName": "Constantine",
+    "arabicName": "قسنطينة",
+    "wilaya_code": "25"
+  },
+  {
+    "id": 26,
+    "frenchName": "Médéa",
+    "arabicName": "المدية",
+    "wilaya_code": "26"
+  },
+  {
+    "id": 27,
+    "frenchName": "Mostaganem",
+    "arabicName": "مستغانم",
+    "wilaya_code": "27"
+  },
+  {
+    "id": 28,
+    "frenchName": "M'Sila",
+    "arabicName": "المسيلة",
+    "wilaya_code": "28"
+  },
+  {
+    "id": 29,
+    "frenchName": "Mascara",
+    "arabicName": "معسكر",
+    "wilaya_code": "29"
+  },
+  {
+    "id": 30,
+    "frenchName": "Ouargla",
+    "arabicName": "ورقلة",
+    "wilaya_code": "30"
+  },
+  {
+    "id": 31,
+    "frenchName": "Oran",
+    "arabicName": "وهران",
+    "wilaya_code": "31"
+  },
+  {
+    "id": 32,
+    "frenchName": "El Bayadh",
+    "arabicName": "البيض",
+    "wilaya_code": "32"
+  },
+  {
+    "id": 33,
+    "frenchName": "Illizi",
+    "arabicName": "إيليزي",
+    "wilaya_code": "33"
+  },
+  {
+    "id": 34,
+    "frenchName": "Bordj Bou Arreridj",
+    "arabicName": "برج بوعريريج",
+    "wilaya_code": "34"
+  },
+  {
+    "id": 35,
+    "frenchName": "Boumerdès",
+    "arabicName": "بومرداس",
+    "wilaya_code": "35"
+  },
+  {
+    "id": 36,
+    "frenchName": "El Tarf",
+    "arabicName": "الطارف",
+    "wilaya_code": "36"
+  },
+  {
+    "id": 37,
+    "frenchName": "Tindouf",
+    "arabicName": "تندوف",
+    "wilaya_code": "37"
+  },
+  {
+    "id": 38,
+    "frenchName": "Tissemsilt",
+    "arabicName": "تيسمسيلت",
+    "wilaya_code": "38"
+  },
+  {
+    "id": 39,
+    "frenchName": "El Oued",
+    "arabicName": "الوادي",
+    "wilaya_code": "39"
+  },
+  {
+    "id": 40,
+    "frenchName": "Khenchela",
+    "arabicName": "خنشلة",
+    "wilaya_code": "40"
+  },
+  {
+    "id": 41,
+    "frenchName": "Souk Ahras",
+    "arabicName": "سوق أهراس",
+    "wilaya_code": "41"
+  },
+  {
+    "id": 42,
+    "frenchName": "Tipaza",
+    "arabicName": "تيبازة",
+    "wilaya_code": "42"
+  },
+  { "id": 43, "frenchName": "Mila", "arabicName": "ميلة", "wilaya_code": "43" },
+  {
+    "id": 44,
+    "frenchName": "Aïn Defla",
+    "arabicName": "عين الدفلى",
+    "wilaya_code": "44"
+  },
+  {
+    "id": 45,
+    "frenchName": "Naâma",
+    "arabicName": "النعامة",
+    "wilaya_code": "45"
+  },
+  {
+    "id": 46,
+    "frenchName": "Aïn Témouchent",
+    "arabicName": "عين تموشنت",
+    "wilaya_code": "46"
+  },
+  {
+    "id": 47,
+    "frenchName": "Ghardaïa",
+    "arabicName": "غرداية",
+    "wilaya_code": "47"
+  },
+  {
+    "id": 48,
+    "frenchName": "Relizane",
+    "arabicName": "غليزان",
+    "wilaya_code": "48"
+  },
+  {
+    "id": 49,
+    "frenchName": "Timimoun",
+    "arabicName": "تيميمون",
+    "wilaya_code": "49"
+  },
+  {
+    "id": 50,
+    "frenchName": "Bordj Badji Mokhtar",
+    "arabicName": "برج باجي مختار",
+    "wilaya_code": "50"
+  },
+  {
+    "id": 51,
+    "frenchName": "Ouled Djellal",
+    "arabicName": "أولاد جلال",
+    "wilaya_code": "51"
+  },
+  {
+    "id": 52,
+    "frenchName": "Béni Abbès",
+    "arabicName": "بني عباس",
+    "wilaya_code": "52"
+  },
+  {
+    "id": 53,
+    "frenchName": "In Salah",
+    "arabicName": "عين صالح",
+    "wilaya_code": "53"
+  },
+  {
+    "id": 54,
+    "frenchName": "In Guezzam",
+    "arabicName": "عين قزام",
+    "wilaya_code": "54"
+  },
+  {
+    "id": 55,
+    "frenchName": "Touggourt",
+    "arabicName": "تقرت",
+    "wilaya_code": "55"
+  },
+  {
+    "id": 56,
+    "frenchName": "Djanet",
+    "arabicName": "جانت",
+    "wilaya_code": "56"
+  },
+  {
+    "id": 57,
+    "frenchName": "El M'Ghair",
+    "arabicName": "المغير",
+    "wilaya_code": "57"
+  },
+  {
+    "id": 58,
+    "frenchName": "El Meniaa",
+    "arabicName": "المنيعة",
+    "wilaya_code": "58"
+  }
+]
