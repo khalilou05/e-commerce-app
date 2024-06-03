@@ -14,9 +14,7 @@ from routes import admin, article, auth
 
 @asynccontextmanager
 async def db_connect(app: FastAPI):
-    app.pool = AsyncConnectionPool(
-        f"hostaddr=0.0.0.0 user=khalil dbname=khalil password=khalil port=5432"
-    )
+    app.pool = AsyncConnectionPool("password=khalil")
     yield
     await app.pool.close()
 
