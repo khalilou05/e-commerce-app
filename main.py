@@ -8,14 +8,12 @@ from psycopg_pool import AsyncConnectionPool
 
 from midleware.auth_midlware import Authmid
 from routes import admin, article, auth
-from settings import DB_NAME, DB_PASS, DB_USER
+from settings import DB_PASS
 
 
 @asynccontextmanager
 async def db_connect(app: FastAPI):
-    app.pool = AsyncConnectionPool(
-        f"host=localhost dbname={DB_NAME} user={DB_USER} password={DB_PASS} port=5432"
-    )
+    app.pool = AsyncConnectionPool(f"password={DB_PASS} port=5432")
     yield
     await app.pool.close()
 
