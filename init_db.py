@@ -5,7 +5,7 @@ import psycopg
 from settings import DB_NAME, DB_PASS, DB_USER
 from utils.pswdhash import hash_passwd
 
-cnx = psycopg.connect(f"dbname={DB_NAME} user={DB_USER} password={DB_PASS}")
+cnx = psycopg.connect(f"dbname={DB_NAME} user={DB_USER} password={DB_PASS} port=5432")
 
 
 def create_DB_tables():
