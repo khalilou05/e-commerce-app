@@ -2,7 +2,7 @@ import json
 
 import psycopg
 
-from settings import DB_NAME, DB_PASS, DB_USER
+from settings import DB_PASS
 from utils.pswdhash import hash_passwd
 
 conninfo = f"password={DB_PASS}"
