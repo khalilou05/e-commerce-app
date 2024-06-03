@@ -14,7 +14,7 @@ from settings import DB_NAME, DB_PASS, DB_USER
 @asynccontextmanager
 async def db_connect(app: FastAPI):
     app.pool = AsyncConnectionPool(
-        f"dbname={DB_NAME} user={DB_USER} password={DB_PASS}"
+        f"host=localhost dbname={DB_NAME} user={DB_USER} password={DB_PASS} port=5432"
     )
     yield
     await app.pool.close()
