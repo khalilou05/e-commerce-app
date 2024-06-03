@@ -51,7 +51,7 @@ async def db_get_all_order(
                 sql = """--sql 
                 SELECT o.id,o.full_name,o.phone_number,
                 o.wilaya,o.baladiya,o.article_id,o.quantity,to_char(o.order_date, 'YY-MM-DD HH24:MI') AS order_date,
-                o.home_dilevery,art.price,s.wilaya,s.desk_price,s.home_price
+                o.home_dilevery,art.price,art.reference,s.wilaya,s.desk_price,s.home_price
                 FROM costumer_order o
                 JOIN article art
                 ON article_id=art.id
@@ -64,12 +64,12 @@ async def db_get_all_order(
                 q1 = await cur.execute(sql, data)
                 default = await q1.fetchall()
                 return default
-            #! not confirmed order date filtering
+            # date filtering
             if date:
                 sql = """--sql 
                 SELECT o.id,o.full_name,o.phone_number,
                 o.wilaya,o.baladiya,o.article_id,o.quantity,o.order_date,
-                o.home_dilevery,art.price
+                o.home_dilevery,art.price,art.reference,s.wilaya,s.desk_price,s.home_price
                 FROM costumer_order o
                 JOIN article art
                 ON article_id=art.id
@@ -84,7 +84,7 @@ async def db_get_all_order(
             #! get confirmed order
             if status == "confirmed" and date == None:
                 sql = """--sql 
-                SELECT o.id,o.full_name,o.phone_number,o.wilaya,o.baladiya,o.article_id,o.quantity,o.home_dilevery,art.id,art.price,o.confirmed_date
+                SELECT o.id,o.full_name,o.phone_number,o.wilaya,o.baladiya,o.article_id,o.quantity,o.home_dilevery,art.id,art.price,art.reference,o.confirmed_date
                 FROM costumer_order o
                 JOIN article art
                 ON article_id=art.id
@@ -99,7 +99,7 @@ async def db_get_all_order(
             #! confirmed order + date
             if status == "confirmed" and date:
                 sql = """--sql 
-                SELECT o.id,o.full_name,o.phone_number,o.wilaya,o.baladiya,o.article_id,o.quantity,o.home_dilevery,art.id,art.price,o.confirmed_date
+                SELECT o.id,o.full_name,o.phone_number,o.wilaya,o.baladiya,o.article_id,o.quantity,o.home_dilevery,art.id,art.price,art.reference,o.confirmed_date
                 FROM costumer_order o
                 JOIN article art
                 ON article_id=art.id

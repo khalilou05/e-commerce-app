@@ -27,6 +27,7 @@ def create_DB_tables():
             
                 id SERIAL PRIMARY KEY,
                 title VARCHAR(100) NOT NULL,
+                reference VARCHAR(100) NOT NULL,
                 description text ,
                 price INT NOT NULL,
                 quantity INT NOT NULL,

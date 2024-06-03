@@ -25,3 +25,9 @@ class phoneNumber(BaseModel):
 class login_data(BaseModel):
     username: str
     password: str
+
+
+class admin_data(BaseModel):
+    username: str
+    password: str
+    email: str

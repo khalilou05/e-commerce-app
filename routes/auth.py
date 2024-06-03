@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Request, Response
 
-from DB.db_auth import db_change_admin_passwd, db_get_login_info
+from DB.db_auth import db_change_admin_data, db_get_login_info
 from schema.shcema import login_data
 from utils.jwtoken import make_token
 from utils.pswdhash import hash_passwd, verify_passwd
@@ -31,12 +31,11 @@ async def admin_login(login_data: login_data, req: Request, res: Response):
 # ! -------- RESET ADMIN PASSWORD ( MUST BE LOGED IN) -------------------
 @route.post("/resetpassword")
 # todo check here boy
-async def reset_passwd(req: Request):
+async def reset_passwd(req: Request, admin_data: login_data):
     if not req.auth:
         raise HTTPException(status_code=401)
-    raw_password = req.json()
-    hashed_password = hash_passwd(raw_password)
-    await db_change_admin_passwd(req.app.pool, hashed_password)
+    hashed_password = hash_passwd(admin_data.password)
+    await db_change_admin_data(req.app.pool, admin_data)
     return Response(content={}, status_code=201)
 
 

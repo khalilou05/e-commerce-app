@@ -52,16 +52,16 @@ async def get_article_by_id(id: int, req: Request):
 
 #! ------ ORDER ARTICLE --------------------------------------------
 @route.post("/article/{article_id}/order", status_code=201)
-async def order_article(req: Request, order_info: Order, article_id: int):
+async def order_article(req: Request, order_data: Order, article_id: int):
 
-    inBlacklist = await db_blacklist_check(req.app.pool, order_info.phone_number)
+    inBlacklist = await db_blacklist_check(req.app.pool, order_data.phone_number)
     in_stock = await db_check_article_quantity(req.app.pool, article_id)
     print(in_stock)
 
     if inBlacklist or not in_stock:
         raise HTTPException(status_code=400, detail="out of stock")
 
-    await db_create_order(req.app.pool, order_info, article_id)
+    await db_create_order(req.app.pool, order_data, article_id)
 
 
 #! ------ DELETE ARTICLE BY ID ---------------------------------
@@ -102,7 +102,10 @@ async def create_article(
     price: int = Form(),
     quantity: int = Form(),
     images: list[UploadFile] = Form(),
+    reference: str | int = Form(),
+    free_shipping: bool | None = Form(),
 ):
+
     if not req.auth:
         raise HTTPException(status_code=401)
     # check if images extensions are valid
@@ -113,7 +116,7 @@ async def create_article(
             raise HTTPException(status_code=400, detail="not valid images")
     try:
         article_id = await db_create_article(
-            req.app.pool, title, description, price, quantity
+            req.app.pool, title, description, price, quantity, reference, free_shipping
         )
         await db_create_img_url(req.app.pool, article_id, images)
         await article_img_upload(article_id, images)

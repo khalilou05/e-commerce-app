@@ -26,19 +26,26 @@ async def db_create_img_url(
 
 
 async def db_create_article(
-    cnx: AsyncConnectionPool, title, description, price, quantity
+    cnx: AsyncConnectionPool,
+    title,
+    description,
+    price,
+    quantity,
+    reference,
+    free_shipping,
 ):
-
+    if free_shipping is None:
+        free_shipping = False
     async with cnx.connection() as cnx:
         async with cnx.cursor() as cur:
             query = await cur.execute(
                 """--sql
                 INSERT INTO article 
-                (title,description,price,quantity) 
-                VALUES (%s,%s,%s,%s) 
+                (title,description,price,quantity,reference, free_shipping) 
+                VALUES (%s,%s,%s,%s,%s,%s) 
                 RETURNING id;
                 """,
-                (title, description, price, quantity),
+                (title, description, price, quantity, reference, free_shipping),
             )
             article_id = await query.fetchone()
             return article_id[0]
@@ -52,37 +59,13 @@ async def db_get_all_article(
         async with cnx.cursor(row_factory=dict_row) as cur:
             q1 = await cur.execute(
                 """--sql
-                                SELECT a.id,a.title,a.price,a.quantity,i.img_url
+                                SELECT a.id,a.title,a.price,a.quantity,a.free_shipping,a.published,i.img_url
                                 FROM article a
                                 JOIN img_url i
                                 ON i.article_id=a.id
                                 WHERE i.img_number=1
                                 OFFSET %s
                                 LIMIT %s
-                                ;
-                                """,
-                (offset, limit),
-            )
-            data = await q1.fetchall()
-
-            return data
-
-
-# get article for the costumer
-# todo handle the image array for article costumer detaille
-async def db_get_all_article(
-    cnx: AsyncConnectionPool, offset: int = 0, limit: int = 100
-):
-    async with cnx.connection() as cnx:
-        async with cnx.cursor(row_factory=dict_row) as cur:
-            q1 = await cur.execute(
-                """--sql
-                                SELECT a.id,a.title,a.price,i.img_url
-                                FROM article a
-                                JOIN img_url i
-                                ON i.article_id=a.id
-                                WHERE i.img_number=1
-
                                 ;
                                 """,
                 (offset, limit),
