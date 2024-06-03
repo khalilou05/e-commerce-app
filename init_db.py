@@ -5,7 +5,7 @@ import psycopg
 from settings import DB_PASS
 from utils.pswdhash import hash_passwd
 
-conninfo = f"host=0.0.0.0 password={DB_PASS} user=postgres dbname=postgres"
+conninfo = f"password=khalil user=postgres dbname=postgres port=5432"
 
 cnx = psycopg.connect(conninfo=conninfo)
 
