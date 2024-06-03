@@ -7,6 +7,6 @@ COPY . .
 RUN pip3 install -r requirement.txt
 
 
-ENTRYPOINT [ "python", "-m","init_db.py" ]
+ENTRYPOINT [ "/bin/python3", "-m","init_db.py" ]
 CMD [ "uvicorn", "main:app" ]
 
