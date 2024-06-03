@@ -3,5 +3,3 @@ __pycache__/
 env.py
 .DS_Store
 test.py
-
-static/
