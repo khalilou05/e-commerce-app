@@ -11,6 +11,6 @@ DEV_MODE = True
 
 jwt_secret_key = "a2hhbGlsQ29kZTR5b3UvOi8K"
 jwt_exp_date_token = 7
-DB_NAME = "khalil"
-DB_USER = "khalil"
+# DB_NAME = "khalil"
+# DB_USER = "khalil"
 DB_PASS = "khalil"
