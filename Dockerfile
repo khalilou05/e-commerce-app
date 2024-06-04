@@ -10,6 +10,6 @@ RUN apt-get install -y libpq-dev
 
 
 
-CMD uvicorn main:app --host 0.0.0.0; python3 -m init_db.py 
+CMD python3 -m init_db.py && uvicorn main:app --host 0.0.0.0 
 
 

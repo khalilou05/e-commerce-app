@@ -12,6 +12,7 @@ cnx = psycopg.connect(conninfo=condata)
 
 def create_DB_tables():
     with cnx as cur:
+        print("database table init ...")
         cur.execute(
             """
 
