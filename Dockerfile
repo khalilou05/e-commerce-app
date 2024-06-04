@@ -6,11 +6,12 @@ COPY . .
 
 RUN pip3 install -r requirement.txt
 
-RUN sudo apt install libpq5
-
+RUN apt-get update \
+&& apt-get install -y \
+apt-get install libpq5
 
 ENTRYPOINT uvicorn main:app
 
-CMD [ "python", "-m", "init_db.py" ]
+CMD [ "python3", "-m", "init_db.py" ]
 
 
