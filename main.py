@@ -14,7 +14,9 @@ from routes import admin, article, auth
 
 @asynccontextmanager
 async def db_connect(app: FastAPI):
-    app.pool = AsyncConnectionPool("password=khalil user=postgres")
+    app.pool = AsyncConnectionPool(
+        "password=khalil user=postgres dbname=postgres host=localhost"
+    )
     yield
     await app.pool.close()
 

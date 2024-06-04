@@ -5,9 +5,9 @@ import psycopg
 from settings import DB_PASS
 from utils.pswdhash import hash_passwd
 
-conninfo = "password=khalil user=postgres"
+condata = "password=khalil user=postgres dbname=postgres host=localhost"
 
-cnx = psycopg.connect(conninfo=conninfo)
+cnx = psycopg.connect(conninfo=condata)
 
 
 def create_DB_tables():
