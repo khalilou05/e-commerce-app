@@ -10,6 +10,7 @@ RUN apt-get install -y libpq-dev
 
 
 
-CMD python3  init_db.py && uvicorn main:app --host 0.0.0.0 
+CMD psql "user=postgres password=khalil dbname=postgres" -f init.sql &&\ 
+uvicorn main:app --host 0.0.0.0 
 
 
