@@ -99,11 +99,13 @@ async def remove_ban(req: Request):
 async def get_wilaya_shipping_cost(req: Request):
 
     # for the admin panel
-    try:
-        shipping_cost = await get_all_wilaya_shipping_cost(req.app.pool)
-        return shipping_cost
-    except:
-        raise HTTPException(status_code=400)
+    # try:
+    shipping_cost = await get_all_wilaya_shipping_cost(req.app.pool)
+    return shipping_cost
+
+
+# except:
+#     raise HTTPException(status_code=400)
 
 
 @route.get("/shipping/available")

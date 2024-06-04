@@ -1,4 +1,5 @@
 import json
+import time
 
 import psycopg
 
@@ -10,7 +11,8 @@ cnx = psycopg.connect(conninfo=condata)
 
 
 def create_DB_tables():
-    with cnx as cur:
+    time.sleep(5)
+    with cnx.cursor() as cur:
         print("database table init ...")
         cur.execute(
             """
@@ -95,6 +97,7 @@ def create_DB_tables():
 
             """
         )
+        print(cur.rowcount)
 
         hashed_psswd = hash_passwd("admin")
 
