@@ -1,0 +1,5 @@
+  backend:
+    build: .
+    network_mode: host
+
+    restart: always

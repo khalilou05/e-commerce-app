@@ -11,7 +11,6 @@ cnx = psycopg.connect(conninfo=condata)
 
 
 def create_DB_tables():
-    time.sleep(5)
     with cnx.cursor() as cur:
         print("database table init ...")
         cur.execute(
@@ -97,7 +96,6 @@ def create_DB_tables():
 
             """
         )
-        print(cur.rowcount)
 
         hashed_psswd = hash_passwd("admin")
 

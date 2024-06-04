@@ -9,8 +9,6 @@ from psycopg_pool import AsyncConnectionPool
 from midleware.auth_midlware import Authmid
 from routes import admin, article, auth
 
-# from settings import DB_PASS
-
 
 @asynccontextmanager
 async def db_connect(app: FastAPI):
