@@ -6,6 +6,7 @@ COPY . .
 
 RUN pip3 install -r requirement.txt
 
+RUN apt-get install libpq-dev
 
 ENTRYPOINT uvicorn main:app
 
