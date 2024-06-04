@@ -1,3 +1,5 @@
+ 
+services:
   backend:
     build: .
     network_mode: host
