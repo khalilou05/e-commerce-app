@@ -5,7 +5,7 @@ import psycopg
 from settings import DB_PASS
 from utils.pswdhash import hash_passwd
 
-condata = "hostaddr=0.0.0.0 user=postgres password=khalil"
+condata = "hostaddr=127.0.0.1 user=postgres password=khalil"
 
 cnx = psycopg.connect(conninfo=condata)
 
