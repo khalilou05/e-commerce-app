@@ -11,6 +11,7 @@ cnx = psycopg.connect(conninfo=condata)
 
 
 def create_DB_tables():
+    time.sleep(20)
     with cnx.cursor() as cur:
         print("database table init ...")
         cur.execute(
