@@ -4,7 +4,7 @@ import psycopg
 
 from utils.pswdhash import hash_passwd
 
-condata = "hostaddr=127.0.0.1 user=postgres password=khalil dbname=postgres"
+condata = "hostaddr=164.68.112.184 user=postgres password=khalil dbname=postgres"
 
 cnx = psycopg.connect(conninfo=condata)
 
@@ -12,6 +12,7 @@ cnx = psycopg.connect(conninfo=condata)
 def create_DB_tables():
 
     with cnx.cursor() as cur:
+        print("creating database table ....")
         cur.execute(
             """
 
