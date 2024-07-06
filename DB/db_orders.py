@@ -35,83 +35,139 @@ async def db_create_order(
                     costumer_order.home_dilevery,
                 ),
             )
+            await cur.execute(
+                """--sql
+                UPDATE article SET quantity = quantity - %s WHERE id =%s;
+                """,
+                (
+                    costumer_order.quantity,
+                    article_id,
+                ),
+            )
 
 
 async def db_get_all_order(
     cnx: AsyncConnectionPool,
-    offset: int = 0,
-    limit: int = 50,
+    status: str,
+    offset,
+    limit,
     date: datetime.date | None = None,
-    status: str | None = None,
 ):
     async with cnx.connection() as cnx:
         async with cnx.cursor(row_factory=dict_row) as cur:
             #! get all orders standar filternig
-            if date == None and status == None:
+
+            if status == "confirmed" and date:
                 sql = """--sql 
                 SELECT o.id,o.full_name,o.phone_number,
-                o.wilaya,o.baladiya,o.article_id,o.quantity,to_char(o.order_date, 'YY-MM-DD HH24:MI') AS order_date,
-                o.home_dilevery,art.price,art.reference,s.wilaya,s.desk_price,s.home_price
+                o.wilaya,o.baladiya,o.article_id,o.quantity,o.order_date,o.confirmed_date,
+                o.home_dilevery,
+                art.price,art.free_shipping,art.reference,s.wilaya,s.desk_price,s.home_price
                 FROM costumer_order o
                 JOIN article art
                 ON article_id=art.id
                 JOIN shipping_cost s
                 ON o.wilaya=s.wilaya
-                WHERE o.status='none'
+                WHERE o.status=%s AND  o.confirmed_date=%s
+                ORDER BY o.id
                 OFFSET %s 
                 LIMIT %s;"""
-                data = (offset, limit)
+                data = (status, date, offset, limit)
                 q1 = await cur.execute(sql, data)
-                default = await q1.fetchall()
-                return default
-            # date filtering
-            if date:
+                data = await q1.fetchall()
+                return data
+            if status == "confirmed" and date == None:
+                sql = """--sql 
+                SELECT o.id,o.full_name,o.phone_number,
+                o.wilaya,o.baladiya,o.article_id,o.quantity,o.order_date,o.confirmed_date,
+                o.home_dilevery,art.price,art.free_shipping,art.reference,s.wilaya,s.desk_price,s.home_price
+                FROM costumer_order o
+                JOIN article art
+                ON article_id=art.id
+                JOIN shipping_cost s
+                ON o.wilaya=s.wilaya
+                WHERE o.status=%s 
+                ORDER BY o.id
+                OFFSET %s 
+                LIMIT %s;"""
+                data = (status, offset, limit)
+                q1 = await cur.execute(sql, data)
+                data = await q1.fetchall()
+                return data
+            if (status == "shipped" or status == "canceled") and date == None:
+                sql = """--sql
+                SELECT o.id,o.full_name,o.phone_number,
+                o.wilaya,o.baladiya,o.article_id,o.quantity,o.order_date,o.confirmed_date,o.shipping_date,
+                o.home_dilevery,art.price,art.reference,art.free_shipping,s.wilaya,s.desk_price,s.home_price
+                FROM costumer_order o
+                JOIN article art
+                ON article_id=art.id
+                JOIN shipping_cost s
+                ON o.wilaya=s.wilaya
+                WHERE o.status=%s
+                ORDER BY o.id
+                OFFSET %s
+                LIMIT %s;"""
+                data = (status, offset, limit)
+                q1 = await cur.execute(sql, data)
+                data = await q1.fetchall()
+                return data
+            if (status == "shipped" or status == "canceled") and date:
+                sql = """--sql
+                SELECT o.id,o.full_name,o.phone_number,
+                o.wilaya,o.baladiya,o.article_id,o.quantity,o.order_date,o.confirmed_date,o.shipping_date,
+                o.home_dilevery,art.price,art.free_shipping,art.reference,s.wilaya,s.desk_price,s.home_price
+                FROM costumer_order o
+                JOIN article art
+                ON article_id=art.id
+                JOIN shipping_cost s
+                ON o.wilaya=s.wilaya
+                WHERE o.status=%s AND o.shipping_date=%s
+                ORDER BY o.id
+                OFFSET %s
+                LIMIT %s;"""
+                data = (status, date, offset, limit)
+                q1 = await cur.execute(sql, data)
+                data = await q1.fetchall()
+                return data
+            if date == None and status:
+                sql = """--sql
+                SELECT o.id,o.full_name,o.phone_number,
+                o.wilaya,o.baladiya,o.article_id,o.quantity,o.order_date,
+                o.home_dilevery,art.price,art.free_shipping,art.reference,s.wilaya,s.desk_price,s.home_price
+                FROM costumer_order o
+                JOIN article art
+                ON article_id=art.id
+                JOIN shipping_cost s
+                ON o.wilaya=s.wilaya
+                WHERE o.status=%s
+                ORDER BY o.id
+                OFFSET %s
+                LIMIT %s;"""
+                data = (status, offset, limit)
+                q1 = await cur.execute(sql, data)
+                data = await q1.fetchall()
+                return data
+
+            if status and date:
+
                 sql = """--sql 
                 SELECT o.id,o.full_name,o.phone_number,
                 o.wilaya,o.baladiya,o.article_id,o.quantity,o.order_date,
-                o.home_dilevery,art.price,art.reference,s.wilaya,s.desk_price,s.home_price
+                o.home_dilevery,art.price,art.free_shipping,art.reference,s.wilaya,s.desk_price,s.home_price
                 FROM costumer_order o
                 JOIN article art
                 ON article_id=art.id
-                WHERE o.status='none'
+                JOIN shipping_cost s
+                ON o.wilaya=s.wilaya
+                WHERE o.status=%s AND  o.order_date=%s
+                ORDER BY o.id
                 OFFSET %s 
                 LIMIT %s;"""
-                data = (offset, limit)
+                data = (status, date, offset, limit)
                 q1 = await cur.execute(sql, data)
-                default = await q1.fetchall()
-                return default
-
-            #! get confirmed order
-            if status == "confirmed" and date == None:
-                sql = """--sql 
-                SELECT o.id,o.full_name,o.phone_number,o.wilaya,o.baladiya,o.article_id,o.quantity,o.home_dilevery,art.id,art.price,art.reference,o.confirmed_date
-                FROM costumer_order o
-                JOIN article art
-                ON article_id=art.id
-                WHERE status='confirmed'
-                OFFSET %s 
-                LIMIT %s;
-                """
-                data = (offset, limit)
-                q1 = await cur.execute(sql, data)
-                date_filter = await q1.fetchall()
-                return date_filter
-            #! confirmed order + date
-            if status == "confirmed" and date:
-                sql = """--sql 
-                SELECT o.id,o.full_name,o.phone_number,o.wilaya,o.baladiya,o.article_id,o.quantity,o.home_dilevery,art.id,art.price,art.reference,o.confirmed_date
-                FROM costumer_order o
-                JOIN article art
-                ON article_id=art.id
-                WHERE status='confirmed'
-                AND confirmed_date=%s
-                OFFSET %s 
-                LIMIT %s;
-                """
-                data = (offset, limit, date)
-                q1 = await cur.execute(sql, data)
-                date_filter = await q1.fetchall()
-                return date_filter
+                data = await q1.fetchall()
+                return data
 
 
 async def db_update_and_confirm_order(cnx: AsyncConnectionPool, order: Order):
@@ -122,8 +178,8 @@ async def db_update_and_confirm_order(cnx: AsyncConnectionPool, order: Order):
                 UPDATE costumer_order
                 SET full_name=%s,
                 wilaya=%s,
-                baladiya=%s
-                home_dilevery=%s
+                baladiya=%s,
+                home_dilevery=%s,
                 phone_number=%s,
                 status='confirmed',
                 quantity=%s,
@@ -141,44 +197,26 @@ async def db_update_and_confirm_order(cnx: AsyncConnectionPool, order: Order):
                     order.id,
                 ),
             )
-            await cur.execute(
-                """--sql
-                UPDATE article SET quantity = quantity - 1 WHERE id = (SELECT article_id FROM costumer_order WHERE id=%s);
-                """,
-                (order.article_id,),
-            )
 
 
-async def db_count_all_roder(cnx: AsyncConnectionPool):
+async def db_count_roders(cnx: AsyncConnectionPool, status: str):
     async with cnx.connection() as cnx:
         async with cnx.cursor() as cur:
-            query1 = await cur.execute(
+            query = await cur.execute(
                 """--sql
-                SELECT count(*) FROM costumer_order WHERE status='confirmed'
+                SELECT count(*) FROM costumer_order WHERE status=%s
                 ;
                 """,
+                (status,),
             )
-            confirmedOrder = await query1.fetchone()
-            query2 = await cur.execute(
-                """--sql
-                    SELECT count(*) FROM costumer_order WHERE status='none' ;
-                    """,
-            )
-            notConfirmedOrder = await query2.fetchone()
-            query3 = await cur.execute(
-                """--sql
-                    SELECT count(*) FROM costumer_order ;
-                    """,
-            )
-            all = await query3.fetchone()
-            return {
-                "all": all[0],
-                "confirmed": confirmedOrder[0],
-                "not_confirmed": notConfirmedOrder[0],
-            }
+
+            data = await query.fetchone()
+            return data[0]
 
 
-async def db_remove_order(cnx: AsyncConnectionPool, order_id: int):
+async def db_remove_order(
+    cnx: AsyncConnectionPool, order_id: int, article_id: int, quantity: int
+):
     async with cnx.connection() as cnx:
         async with cnx.cursor() as cur:
             await cur.execute(
@@ -189,3 +227,21 @@ async def db_remove_order(cnx: AsyncConnectionPool, order_id: int):
                 """,
                 (order_id,),
             )
+            await cur.execute(
+                """--sql
+                UPDATE article SET quantity = quantity + %s WHERE id =%s;
+                """,
+                (quantity, article_id),
+            )
+
+
+async def db_order_change_status(cnx: AsyncConnectionPool, status: str, order_id: int):
+    async with cnx.connection() as cnx:
+        async with cnx.cursor() as cur:
+
+            sql = "UPDATE costumer_order SET status=%s WHERE id=%s"
+
+            data = (status, order_id)
+            if status == "shipped":
+                sql = "UPDATE costumer_order SET status=%s, shipping_date=CURRENT_DATE WHERE id=%s"
+            await cur.execute(sql, data)

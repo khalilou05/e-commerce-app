@@ -28,7 +28,7 @@ async def all_article(
     req: Request, offset: int | None = None, limit: int | None = None
 ):
     try:
-        data = await db_get_all_article(req.app.pool, offset, limit)
+        data = await db_get_all_article(req.app.pool)
         return data
     except:
         raise HTTPException(status_code=400)
@@ -55,30 +55,30 @@ async def get_article_by_id(id: int, req: Request):
 async def order_article(req: Request, order_data: Order, article_id: int):
 
     inBlacklist = await db_blacklist_check(req.app.pool, order_data.phone_number)
-    in_stock = await db_check_article_quantity(req.app.pool, article_id)
-    print(in_stock)
-
-    if inBlacklist or not in_stock:
+    stock_quantity = await db_check_article_quantity(req.app.pool, article_id)
+    if inBlacklist or stock_quantity == 0:
         raise HTTPException(status_code=400, detail="out of stock")
 
     await db_create_order(req.app.pool, order_data, article_id)
 
 
 #! ------ DELETE ARTICLE BY ID ---------------------------------
-@route.delete("/article/{id}/remove")
+@route.delete("/article/{id}/delete")
 async def delete_article_by_id(id: int, req: Request):
-    if not req.auth:
-        raise HTTPException(status_code=401)
-    try:
-        img_list = await db_get_art_img_url(req.app.pool, id)
-        await db_delete_article_by_id(req.app.pool, id)
-        path = Path() / "static"
+    # if not req.auth:
+    #     raise HTTPException(status_code=401)
+    # try:
+    img_list = await db_get_art_img_url(req.app.pool, id)
+    await db_delete_article_by_id(req.app.pool, id)
+    path = Path() / "static"
 
-        for img in img_list:
-            path_to_delete = f"{path}/{img[0]}"
-            os.remove(path_to_delete)
-    except:
-        raise HTTPException(status_code=400)
+    for img in img_list:
+        path_to_delete = f"{path}/{img[0]}"
+        os.remove(path_to_delete)
+
+
+# except:
+#     raise HTTPException(status_code=400)
 
 
 #! ------ UPDATE ARTICLE BY ID -----------------------------------------------
@@ -98,12 +98,12 @@ async def update_article(id: int, req: Request, article_data: Article_schema):
 async def create_article(
     req: Request,
     title: str = Form(),
-    description: str | None = Form(),
+    description: str | None = Form(None),
     price: int = Form(),
     quantity: int = Form(),
     images: list[UploadFile] = Form(),
     reference: str | int = Form(),
-    free_shipping: bool | None = Form(),
+    free_shipping: bool | None = Form(None),
 ):
 
     if not req.auth:

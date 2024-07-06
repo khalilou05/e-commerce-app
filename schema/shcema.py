@@ -16,6 +16,12 @@ class Order(BaseModel):
     baladiya: str | None = None
     quantity: int | None = None
     home_dilevery: bool
+    reference: str | None = None
+    desk_price: int | None = None
+    home_price: int | None = None
+    article_id: int | None = None
+    confirmed_date: str | None = None
+    shipping_date: str | None = None
 
 
 class phoneNumber(BaseModel):
@@ -31,3 +37,8 @@ class admin_data(BaseModel):
     username: str
     password: str
     email: str
+
+
+class UpdateOrder(BaseModel):
+    status: str
+    orders: list[Order]

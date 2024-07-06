@@ -52,23 +52,19 @@ async def db_create_article(
 
 
 # get article for the admin panel
-async def db_get_all_article(
-    cnx: AsyncConnectionPool, offset: int = 0, limit: int = 100
-):
+async def db_get_all_article(cnx: AsyncConnectionPool):
     async with cnx.connection() as cnx:
         async with cnx.cursor(row_factory=dict_row) as cur:
             q1 = await cur.execute(
                 """--sql
-                                SELECT a.id,a.title,a.price,a.quantity,a.free_shipping,a.published,i.img_url
+                                SELECT a.id,a.title,a.price,a.quantity,a.free_shipping,a.published,i.img_url, (SELECT count(*) FROM visitor WHERE article_viewed=a.id) as viewed_number
                                 FROM article a
                                 JOIN img_url i
                                 ON i.article_id=a.id
                                 WHERE i.img_number=1
-                                OFFSET %s
-                                LIMIT %s
+                            
                                 ;
                                 """,
-                (offset, limit),
             )
             data = await q1.fetchall()
 
@@ -87,9 +83,8 @@ async def db_check_article_quantity(cnx: AsyncConnectionPool, article_id: int):
             )
 
             data = await q1.fetchone()
-            if data is not None:
-                return True
-            return False
+
+            return data[0]
 
 
 async def db_get_article_by_id(cnx: AsyncConnectionPool, article_id: int):

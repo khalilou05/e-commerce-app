@@ -2,8 +2,9 @@ from fastapi import APIRouter, HTTPException, Request
 
 from DB.db_blacklist import db_blacklist_add, db_blacklist_check, db_blacklist_remove
 from DB.db_orders import (
-    db_count_all_roder,
+    db_count_roders,
     db_get_all_order,
+    db_order_change_status,
     db_remove_order,
     db_update_and_confirm_order,
 )
@@ -13,7 +14,7 @@ from DB.db_shipping_cost import (
     get_wilaya_cost_by_id,
     update_wilaya_shipping_cost,
 )
-from schema.shcema import Order
+from schema.shcema import Order, UpdateOrder
 
 route = APIRouter()
 
@@ -25,27 +26,28 @@ route = APIRouter()
 @route.get("/order")
 async def get_all_order(
     req: Request,
-    offset: int | None = None,
-    limit: int | None = None,
+    status: str,
+    offset: int,
+    limit: int,
     date: str | None = None,
-    status: str | None = None,
 ):
     if not req.auth:
         raise HTTPException(status_code=401)
     try:
-        all_order = await db_get_all_order(req.app.pool, offset, limit, date, status)
+        all_order = await db_get_all_order(
+            req.app.pool, date=date, status=status, offset=offset, limit=limit
+        )
         return all_order
-
     except:
-        raise HTTPException(status_code=404)
+        raise HTTPException(status_code=400)
 
 
 # GET THE NUMBER OF ALL ORDER
 @route.get("/order/count")
-async def db_ordr_count(req: Request):
+async def db_ordr_count(req: Request, status: str):
     if not req.auth:
         raise HTTPException(status_code=401)
-    order_count_number = await db_count_all_roder(req.app.pool)
+    order_count_number = await db_count_roders(req.app.pool, status)
     return order_count_number
 
 
@@ -59,39 +61,47 @@ async def set_ordr_confirmed(req: Request, order_list: list[Order]):
 
 
 # DELETE ORDER ( SINGLE AND BULK OPERATIONS )
-@route.delete("/order/delete")
-async def delete_order(req: Request):
+@route.post("/order/delete")
+async def delete_order(req: Request, order_list: list[Order]):
     if not req.auth:
         raise HTTPException(status_code=401)
-    idList: list[int] = await req.json()
-    for order_id in idList:
-        await db_remove_order(req.app.pool, order_id)
+    for order in order_list:
+        await db_remove_order(req.app.pool, order.id, order.article_id, order.quantity)
+
+
+# change orders status
+@route.post("/order/update")
+async def order_update_status(req: Request, data: UpdateOrder):
+    if not req.auth:
+        raise HTTPException(status_code=401)
+
+    for order in data.orders:
+        await db_order_change_status(req.app.pool, data.status, order.id)
 
 
 # ! -------- BLACKLIST COSTUMER  ----------------
 # add a phone number to blacklist
 @route.post("/blacklist/add")
-async def add_ban(
-    req: Request,
-):
+async def add_ban(req: Request, ordersList: list[Order]):
     if not req.auth:
         raise HTTPException(status_code=401)
-    phone_number_list: list[str] = await req.json()
 
-    for phone in phone_number_list:
-        in_blacklist = await db_blacklist_check(req.app.pool, phone)
+    for order in ordersList:
+        in_blacklist = await db_blacklist_check(req.app.pool, order.phone_number)
         if in_blacklist:
             return {"error": "alredy in blacklist"}
-        await db_blacklist_add(req.app.pool, phone)
+        await db_blacklist_add(
+            req.app.pool, order.phone_number, order.quantity, order.article_id
+        )
 
 
 # delete phone number from blacklist
-@route.delete("/blacklist/remove")
-async def remove_ban(req: Request):
-    if not req.auth:
-        raise HTTPException(status_code=401)
-    phone = await req.json()
-    await db_blacklist_remove(req.app.pool, phone)
+# @route.delete("/blacklist/remove")
+# async def remove_ban(req: Request):
+#     if not req.auth:
+#         raise HTTPException(status_code=401)
+#     phone = await req.json()
+#     await db_blacklist_remove(req.app.pool, phone)
 
 
 # ! -------- WILAYA SHIPPING COST   ----------------

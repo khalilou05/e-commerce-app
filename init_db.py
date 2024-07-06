@@ -13,9 +13,9 @@ def create_DB_tables():
 
     with cnx as cur:
         print("creating database table ....")
+
         cur.execute(
             """
-
             CREATE TABLE "user"(
 
                 id SERIAL PRIMARY KEY,
@@ -34,7 +34,7 @@ def create_DB_tables():
                 description text ,
                 price INT NOT NULL,
                 quantity INT NOT NULL,
-                published timestamp DEFAULT CURRENT_TIMESTAMP,
+                published date DEFAULT CURRENT_DATE,
                 free_shipping bool DEFAULT false
 
             );
@@ -42,7 +42,7 @@ def create_DB_tables():
             CREATE TABLE img_url(
 
                 id SERIAL PRIMARY KEY,
-                article_id int REFERENCES article(id) ON DELETE CASCADE NOT NULL,
+                article_id int REFERENCES article(id) ON DELETE CASCADE,
                 img_url VARCHAR(200) NOT NULL,
                 img_number int NOT NULL
 
@@ -52,7 +52,7 @@ def create_DB_tables():
 
                 id SERIAL PRIMARY KEY,
                 phone_number varchar(10) NOT NULL,
-                banned_date timestamp DEFAULT CURRENT_TIMESTAMP
+                banned_date date DEFAULT CURRENT_DATE
 
 
             );
@@ -62,7 +62,7 @@ def create_DB_tables():
 
                 id SERIAL PRIMARY KEY,
                 ip_address varchar(30) NOT NULL,
-                article_viewed int REFERENCES article(id),
+                article_viewed int REFERENCES article(id) ON DELETE CASCADE,
                 visit_date timestamp DEFAULT CURRENT_TIMESTAMP
 
             );
@@ -84,12 +84,13 @@ def create_DB_tables():
                 full_name VARCHAR(30) NOT NULL,
                 wilaya VARCHAR(15) NOT NULL,
                 phone_number VARCHAR(10) NOT NULL,
-                article_id int REFERENCES article(id) NOT NULL,
+                article_id int REFERENCES article(id) ON DELETE RESTRICT,
                 home_dilevery boolean NOT NULL,
                 quantity int DEFAULT 1,
                 baladiya VARCHAR(20),
-                order_date timestamp DEFAULT CURRENT_TIMESTAMP,
-                confirmed_date timestamp ,
+                order_date date DEFAULT CURRENT_DATE,
+                confirmed_date date,
+                shipping_date date,
                 status VARCHAR(15) DEFAULT 'none'
             );
         """
