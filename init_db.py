@@ -16,7 +16,7 @@ def create_DB_tables():
 
         cur.execute(
             """
-            CREATE TABLE "user"(
+            CREATE TABLE IF NOT EXISTS "user"(
 
                 id SERIAL PRIMARY KEY,
                 user_name VARCHAR(100) UNIQUE NOT NULL,
@@ -26,7 +26,7 @@ def create_DB_tables():
             );
 
 
-            CREATE TABLE article(
+            CREATE TABLE IF NOT EXISTS article(
             
                 id SERIAL PRIMARY KEY,
                 title VARCHAR(100) NOT NULL,
@@ -39,7 +39,7 @@ def create_DB_tables():
 
             );
 
-            CREATE TABLE img_url(
+            CREATE TABLE IF NOT EXISTS img_url(
 
                 id SERIAL PRIMARY KEY,
                 article_id int REFERENCES article(id) ON DELETE CASCADE,
@@ -48,7 +48,7 @@ def create_DB_tables():
 
             );
 
-            CREATE TABLE black_list(
+            CREATE TABLE IF NOT EXISTS black_list(
 
                 id SERIAL PRIMARY KEY,
                 phone_number varchar(10) NOT NULL,
@@ -58,7 +58,7 @@ def create_DB_tables():
             );
 
 
-            CREATE TABLE visitor(
+            CREATE TABLE IF NOT EXISTS visitor(
 
                 id SERIAL PRIMARY KEY,
                 ip_address varchar(30) NOT NULL,
@@ -67,7 +67,7 @@ def create_DB_tables():
 
             );
 
-            CREATE TABLE shipping_cost(
+            CREATE TABLE IF NOT EXISTS shipping_cost(
 
                 id SERIAL PRIMARY KEY,
                 wilaya varchar(15) NOT NULL,
@@ -78,7 +78,7 @@ def create_DB_tables():
             );
 
 
-            CREATE TABLE costumer_order(
+            CREATE TABLE IF NOT EXISTS costumer_order(
             
                 id SERIAL PRIMARY KEY,
                 full_name VARCHAR(30) NOT NULL,
